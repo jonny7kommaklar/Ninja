@@ -102,7 +102,7 @@ label{display:block;font-size:12px;color:#334155}
 </head>
 <body>
 <div id="map"></div>
-<div class="topbar"><div class="glass brandbar"><div class="logo-dot"></div><div><div class="title">Vanessa on Tour</div><div class="sub">Camino pins, Rätsel & kleine Wegmagie</div></div></div></div>
+<div class="topbar"><div class="glass brandbar"><div class="logo-dot"></div><div><div class="title">Vanessa on Tour</div><div class="sub">Für Spiel und Spaß beim Laufen :D</div></div></div></div>
 <button class="fab" id="addSpotBtn" title="Neuen Pin setzen">＋</button>
 <button class="locate-btn" id="locateBtn" title="Mein Standort">📍</button>
 <div class="glass dock">
@@ -112,7 +112,7 @@ label{display:block;font-size:12px;color:#334155}
 </div>
 
 <section class="glass panel" id="panel-search" data-panel="search">
-  <div class="panel-head"><div><div class="panel-title">Suche & Überblick</div><div class="panel-sub">Filter, Treffer und kleiner Lagecheck.</div></div><button class="panel-close" data-panel-close>✕</button></div>
+  <div class="panel-head"><div><div class="panel-title">Suche & Überblick</div><div class="panel-sub">Filter, Treffer, Lagecheck</div></div><button class="panel-close" data-panel-close>✕</button></div>
   <div class="panel-body">
     <div class="section stack">
       <input id="searchInput" placeholder="Pinname suchen, z. B. Versteck 3">
@@ -170,14 +170,14 @@ label{display:block;font-size:12px;color:#334155}
 </section>
 
 <section class="glass panel" id="panel-account" data-panel="account">
-  <div class="panel-head"><div><div class="panel-title">Login</div><div class="panel-sub">Optional für spätere RLS-Spielchen oder Admin-Nervenfrieden.</div></div><button class="panel-close" data-panel-close>✕</button></div>
+  <div class="panel-head"><div><div class="panel-title">Login</div><div class="panel-sub">Logindaten beim Admin persönlich abzuholen</div></div><button class="panel-close" data-panel-close>✕</button></div>
   <div class="panel-body">
     <div class="section stack">
       <div id="statusPill" class="warn">Nicht eingeloggt</div>
       <div><label>E-Mail</label><input id="loginEmail" type="email" placeholder="dein@email.de"></div>
       <div><label>Passwort</label><input id="loginPassword" type="password" placeholder="••••••••"></div>
       <div class="row2"><button class="btn" id="loginBtn">Einloggen</button><button class="btn" id="logoutBtn">Logout</button></div>
-      <div class="small-note">Für die frische SQL unten ist RLS erstmal aus. Login bleibt trotzdem drin, falls du später wieder schärfer absichern willst.</div>
+      <div class="small-note">Viel Spaß und komm gut an!</div>
     </div>
   </div>
 </section>
@@ -186,7 +186,6 @@ label{display:block;font-size:12px;color:#334155}
   <div class="panel-head"><div><div class="panel-title">Setup & Einstellungen</div><div class="panel-sub">Supabase, Pinoptik, Backup und 200m-Regel.</div></div><button class="panel-close" data-panel-close>✕</button></div>
   <div class="panel-body">
     <div class="section stack">
-      <div class="small-note">Supabase URL und Key sind jetzt fest im HTML hinterlegt. Direkt oben im Script bei <b>SUPABASE_URL</b> und <b>SUPABASE_ANON_KEY</b> eintragen – dann läuft der Hobel.</div>
       <div class="row2"><button class="btn" id="connectBtn">Neu verbinden</button><button class="btn" id="saveSettingsBtn">Optik speichern</button></div>
       <div class="small-note hidden" id="adminHint">Admin erkannt. Hier darfst du jetzt auch den Pin-Editor öffnen und neue Pins setzen.</div>
       <button class="btn hidden" id="openEditorFromSettingsBtn">Pin-Editor öffnen</button>
