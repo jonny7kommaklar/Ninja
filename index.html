@@ -422,7 +422,7 @@ window.checkAnswer = function(id){
   const result = el('answerResult');
   if(!spot || !result) return;
   if(!input){ result.textContent = 'Noch nix eingegeben.'; return; }
-  const ok = (spot.solution_answer || '').trim().toLowerCase() === input.toLowerCase();
+  const ok = (spot.solution || '').trim().toLowerCase() === input.toLowerCase();
   result.textContent = ok ? 'Bingo. Volltreffer 🎯' : 'Nope, noch mal überlegen.';
 };
 window.toggleFound = async function(id, checked){
@@ -462,7 +462,7 @@ function fillAdminForm(spot){
   el('spotImageInput').value = spot?.spot_image_url || '';
   el('spotRiddleInput').value = spot?.riddle || '';
   el('spotNotesInput').value = spot?.notes || '';
-  el('spotAnswerInput').value = spot?.solution_answer || '';
+  el('spotAnswerInput').value = spot?.solution || '';
   el('spotFoundInput').value = String(!!spot?.found);
 }
 function readAdminForm(){
@@ -474,7 +474,7 @@ function readAdminForm(){
     spot_image_url: el('spotImageInput').value.trim(),
     riddle: el('spotRiddleInput').value.trim(),
     notes: el('spotNotesInput').value.trim(),
-    solution_answer: el('spotAnswerInput').value.trim(),
+    solution: el('spotAnswerInput').value.trim(),
     found: el('spotFoundInput').value === 'true'
   };
 }
@@ -616,7 +616,7 @@ function initUi(){
   el('newFromCenterBtn').addEventListener('click', ()=> {
     if(!state.user){ status('Zum Erstellen bitte einloggen.'); openPanel('settingsPanel'); return; }
     const c = state.map.getCenter();
-    fillAdminForm({ name:'Neues Versteck', lat:c.lat.toFixed(6), lng:c.lng.toFixed(6), spot_image_url:'', riddle:'', notes:'', solution_answer:'', found:false });
+    fillAdminForm({ name:'Neues Versteck', lat:c.lat.toFixed(6), lng:c.lng.toFixed(6), spot_image_url:'', riddle:'', notes:'', solution:'', found:false });
     openPanel('settingsPanel');
   });
   el('closeModalBtn').addEventListener('click', closeModal);
