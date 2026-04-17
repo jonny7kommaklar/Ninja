@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Vanessa on Tour</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{
+  --bg:rgba(255,255,255,.76);
+  --bg-2:rgba(255,255,255,.92);
+  --line:rgba(15,23,42,.10);
+  --text:#0f172a;
+  --muted:#475569;
+  --blue:#2563eb;
+  --teal:#0f766e;
+  --pink:#ec4899;
+  --shadow:0 14px 44px rgba(15,23,42,.18);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;font-family:Inter,Arial,sans-serif;overflow:hidden;color:var(--text);background:#dbeafe}
+#map{position:fixed;inset:0;z-index:1}
+.glass{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:var(--bg);border:1px solid var(--line);box-shadow:var(--shadow)}
+.topbar{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:40;display:flex;justify-content:center;pointer-events:none}
+.switcher{pointer-events:auto;display:flex;gap:6px;padding:5px;border-radius:18px;max-width:min(100%,360px)}
+.switcher button{border:0;background:transparent;padding:10px 14px;border-radius:14px;font-weight:800;font-size:13px;color:#334155}
+.switcher button.active{background:linear-gradient(90deg,var(--teal),var(--blue));color:#fff}
+.status-pill{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 66px);z-index:39;padding:10px 14px;border-radius:16px;font-size:12px;color:#334155;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.status-pill b{color:#0f172a}
+.locate-btn{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 122px);z-index:42;border-radius:18px;border:0;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff;width:52px;height:52px;font-size:22px;box-shadow:0 14px 36px rgba(37,99,235,.32)}
+.dock{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);z-index:40;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:8px;border-radius:18px}
+.dock button{border:0;background:rgba(255,255,255,.78);padding:9px 6px;border-radius:14px;font-size:11px;font-weight:800;color:#334155;display:grid;gap:2px;place-items:center;min-height:54px}
+.dock button.active{background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff}
+.dock .icon{font-size:17px;line-height:1}
+.panel{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 78px);z-index:41;border-radius:22px 22px 18px 18px;display:none;overflow:hidden;max-height:min(calc(100vh - 182px), calc((100vh - 182px) * .64))}
+.panel.open{display:flex;flex-direction:column}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px 10px;border-bottom:1px solid var(--line)}
+.panel-title{font-size:14px;font-weight:900;letter-spacing:.01em}
+.panel-sub{font-size:11px;color:var(--muted)}
+.panel-body{padding:12px;overflow:auto;display:grid;gap:10px}
+.panel-close,.btn,.tiny-btn{border:1px solid var(--line);background:rgba(255,255,255,.72);border-radius:12px;color:var(--text)}
+.panel-close{width:34px;height:34px;font-size:18px;color:#b91c1c;font-weight:900}
+.section{background:rgba(255,255,255,.55);border:1px solid rgba(15,23,42,.08);border-radius:16px;padding:10px}
+.stack{display:grid;gap:8px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+input,select,textarea,input[type="file"]{width:100%;border:1px solid rgba(15,23,42,.12);background:rgba(255,255,255,.82);border-radius:12px;padding:11px 12px;font-size:14px;outline:none;color:var(--text)}
+textarea{min-height:94px;resize:vertical}
+label{display:block;font-size:12px;color:#334155}
+.checkbox{display:flex;align-items:center;gap:8px;font-size:13px;color:#334155}
+.checkbox input{width:auto}
+.btn{padding:10px 12px;font-size:13px;font-weight:800}
+.btn.primary{background:linear-gradient(90deg,var(--teal),var(--blue));color:#fff;border-color:transparent}
+.btn.warn{background:linear-gradient(90deg,#f59e0b,#ef4444);color:#fff;border-color:transparent}
+.btn.block{width:100%}
+.small-note{font-size:12px;color:var(--muted)}
+.small-mono{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:12px;color:#334155;word-break:break-all}
+.card-list{display:grid;gap:8px}
+.spot-card{display:grid;grid-template-columns:78px 1fr;gap:10px;padding:8px;border-radius:14px;background:rgba(255,255,255,.58);border:1px solid rgba(15,23,42,.08)}
+.spot-thumb{width:78px;height:62px;border-radius:10px;overflow:hidden;background:#e2e8f0}
+.spot-thumb img,.hero-image img,.gruss-preview img{display:block;width:100%;height:100%;object-fit:cover}
+.spot-name{font-size:13px;font-weight:800}.spot-meta{font-size:11px;color:var(--muted);margin-top:4px}
+.hero-image{height:220px;border-radius:16px;overflow:hidden;background:#e2e8f0}
+.answer-box{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.68);border:1px dashed rgba(15,23,42,.14)}
+.answer-result{font-size:13px;font-weight:800}
+.pin-host{background:transparent;border:0}
+.pin-dot{border-radius:999px;border:2px solid rgba(255,255,255,.96);box-shadow:0 6px 14px rgba(0,0,0,.24)}
+.leaflet-popup-content-wrapper{max-width:min(86vw,340px);overflow:hidden;border-radius:18px}
+.leaflet-popup-content{margin:10px 10px 12px;max-width:calc(min(86vw,340px) - 20px)}
+.map-popup{display:grid;gap:8px;max-width:100%;overflow:hidden}
+.map-popup-photo{width:100%;height:118px;border-radius:12px;overflow:hidden;background:#e2e8f0}
+.map-popup-name{font-size:14px;font-weight:800;line-height:1.25;word-break:break-word}
+.map-popup-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.tiny-link{font-size:12px;color:#2563eb;text-decoration:none}
+#modal{position:fixed;inset:0;background:rgba(2,6,23,.38);display:none;align-items:flex-end;z-index:60}
+#modal.open{display:flex}
+.modal-card{width:100%;border-radius:26px 26px 0 0;padding:14px;max-height:78vh;overflow:auto;background:var(--bg-2)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.modal-head h3{margin:0;font-size:18px}
+.modal-grid{display:grid;gap:12px}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 8px;border-radius:999px;background:#0f172a;color:#fff;font-size:10px;font-weight:800}
+.badge.ok{background:#15803d}.badge.lock{background:#b45309}.badge.off{background:#475569}
+.kicker{font-size:12px;color:#0f766e;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.empty{padding:14px;border-radius:16px;background:rgba(255,255,255,.52);border:1px dashed rgba(15,23,42,.12);font-size:13px;color:#334155}
+hr.soft{border:0;border-top:1px solid rgba(15,23,42,.08);margin:4px 0}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="topbar">
+    <div class="switcher glass">
+      <button class="active" data-view-btn="map">Karte</button>
+      <button data-view-btn="spots">Verstecke</button>
+    </div>
+  </div>
+
+  <div class="status-pill glass">
+    <div><b>Vanessa on Tour</b><br><span id="statusText">Bereit für den Pilger-Modus.</span></div>
+    <div><span id="unlockBadge" class="badge off">Pins frei</span></div>
+  </div>
+
+  <button id="locateBtn" class="locate-btn" title="Standort aktivieren">◎</button>
+
+  <section id="listPanel" class="panel glass open">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Verstecke entlang des Caminos</div>
+        <div class="panel-sub">Klick dich warm, später sperren wir auf 200 m scharf.</div>
+      </div>
+      <button class="panel-close" data-close="listPanel">×</button>
+    </div>
+    <div class="panel-body">
+      <div class="small-note">Route-Startkarte: portugiesischer Camino-Korridor zwischen Porto und Santiago.</div>
+      <div id="listWrap" class="card-list"></div>
+    </div>
+  </section>
+
+  <section id="settingsPanel" class="panel glass">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Einstellungen & Admin</div>
+        <div class="panel-sub">Login, Pin-Stil, Backup, neue Verstecke.</div>
+      </div>
+      <button class="panel-close" data-close="settingsPanel">×</button>
+    </div>
+    <div class="panel-body">
+      <div class="section stack">
+        <div class="kicker">Anzeige</div>
+        <div class="row2">
+          <label>Pin-Farbe
+            <input id="pinColorInput" type="color" value="#ec4899">
+          </label>
+          <label>Pin-Größe
+            <input id="pinSizeInput" type="range" min="10" max="34" step="1" value="18">
+          </label>
+        </div>
+        <div class="row2">
+          <label>Entsperr-Radius später
+            <input id="unlockRadiusInput" type="number" min="50" max="5000" step="10" value="200">
+          </label>
+          <label>Aktuell schon sperren?
+            <select id="strictUnlockInput">
+              <option value="false" selected>Noch nicht</option>
+              <option value="true">Ja, nur in Radius</option>
+            </select>
+          </label>
+        </div>
+        <button id="downloadBackupBtn" class="btn">Backup herunterladen</button>
+      </div>
+
+      <div class="section stack">
+        <div class="kicker">Login</div>
+        <label>E-Mail<input id="loginEmail" type="email" placeholder="dein@email.de"></label>
+        <label>Passwort<input id="loginPassword" type="password" placeholder="••••••••"></label>
+        <div class="row2">
+          <button id="loginBtn" class="btn primary">Einloggen</button>
+          <button id="logoutBtn" class="btn">Ausloggen</button>
+        </div>
+        <div id="authInfo" class="small-note">Noch nicht eingeloggt.</div>
+      </div>
+
+      <div id="adminSection" class="section stack hidden">
+        <div class="kicker">Spot anlegen / bearbeiten</div>
+        <div class="small-note">Für GitHub Pages goldwert: erst Punkt anlegen, dann Kaffee, dann stolz sein.</div>
+        <input id="spotIdInput" type="hidden">
+        <label>Name des Pins
+          <input id="spotNameInput" placeholder="Versteck 1">
+        </label>
+        <div class="row2">
+          <label>Breitengrad
+            <input id="spotLatInput" type="number" step="0.000001" placeholder="41.14961">
+          </label>
+          <label>Längengrad
+            <input id="spotLonInput" type="number" step="0.000001" placeholder="-8.61099">
+          </label>
+        </div>
+        <label>Spot-Bild URL
+          <input id="spotImageInput" placeholder="https://... oder Supabase public URL">
+        </label>
+        <label>Rätsel
+          <textarea id="spotRiddleInput" placeholder="Hier steht dein Rätsel im Fließtext."></textarea>
+        </label>
+        <label>Notizen
+          <textarea id="spotNotesInput" placeholder="Interne Hinweise oder Zusatztext."></textarea>
+        </label>
+        <div class="row2">
+          <label>Lösung
+            <input id="spotAnswerInput" placeholder="z. B. Muschel">
+          </label>
+          <label>Gefunden?
+            <select id="spotFoundInput">
+              <option value="false">Nein</option>
+              <option value="true">Ja</option>
+            </select>
+          </label>
+        </div>
+        <label>Grussfoto hochladen (optional direkt beim Spot speichern)
+          <input id="adminGrussFileInput" type="file" accept="image/*">
+        </label>
+        <div class="row3">
+          <button id="newSpotBtn" class="btn">Neu</button>
+          <button id="saveSpotBtn" class="btn primary">Speichern</button>
+          <button id="deleteSpotBtn" class="btn warn">Löschen</button>
+        </div>
+        <div class="small-mono" id="adminHint">Nicht eingeloggt = nur Deko. Mit Login wird’s scharf.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="dock glass">
+    <button class="active" data-panel="listPanel"><span class="icon">🗺️</span><span>Karte</span></button>
+    <button data-panel="settingsPanel"><span class="icon">⚙️</span><span>Settings</span></button>
+    <button id="fitRouteBtn"><span class="icon">🥾</span><span>Camino</span></button>
+    <button id="newFromCenterBtn"><span class="icon">📍</span><span>Neu</span></button>
+  </div>
+
+  <div id="modal">
+    <div class="modal-card glass">
+      <div class="modal-head">
+        <h3 id="modalTitle">Versteck</h3>
+        <button id="closeModalBtn" class="panel-close">×</button>
+      </div>
+      <div id="modalBody" class="modal-grid"></div>
+    </div>
+  </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+window.VANESSA_CONFIG = {
+  SUPABASE_URL: 'https://vcextmeighvohsaygzzs.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_r1haxHUEm4Et8aNZWRjNOA_FWxf2GaQ',
+  TABLE_NAME: 'camino_spots',
+  SPOT_IMAGE_BUCKET: 'camino-spot-images',
+  GRUSSFOTO_BUCKET: 'camino-grussfotos',
+  START_BOUNDS: [[41.05, -8.9], [42.95, -8.2]],
+  DEFAULT_PIN_COLOR: '#ec4899',
+  DEFAULT_PIN_SIZE: 18,
+  DEFAULT_UNLOCK_RADIUS_M: 200,
+  STRICT_UNLOCK_BY_DISTANCE: false,
+  GITHUB_PAGES_BASE: ''
+};
+
+const state = {
+  map: null,
+  supabase: null,
+  user: null,
+  spots: [],
+  markers: new Map(),
+  selectedSpot: null,
+  userLocation: null,
+  userLocationMarker: null,
+  userLocationCircle: null,
+  settings: {
+    pinColor: localStorage.getItem('vanessa.pinColor') || window.VANESSA_CONFIG.DEFAULT_PIN_COLOR,
+    pinSize: Number(localStorage.getItem('vanessa.pinSize') || window.VANESSA_CONFIG.DEFAULT_PIN_SIZE),
+    unlockRadiusM: Number(localStorage.getItem('vanessa.unlockRadiusM') || window.VANESSA_CONFIG.DEFAULT_UNLOCK_RADIUS_M),
+    strictUnlockByDistance: (localStorage.getItem('vanessa.strictUnlock') ?? String(window.VANESSA_CONFIG.STRICT_UNLOCK_BY_DISTANCE)) === 'true'
+  }
+};
+
+const el = id => document.getElementById(id);
+const qs = sel => document.querySelector(sel);
+const qsa = sel => [...document.querySelectorAll(sel)];
+
+function escapeHtml(s){
+  return (s ?? '').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function status(msg){ el('statusText').textContent = msg; }
+function saveSettings(){
+  localStorage.setItem('vanessa.pinColor', state.settings.pinColor);
+  localStorage.setItem('vanessa.pinSize', String(state.settings.pinSize));
+  localStorage.setItem('vanessa.unlockRadiusM', String(state.settings.unlockRadiusM));
+  localStorage.setItem('vanessa.strictUnlock', String(state.settings.strictUnlockByDistance));
+  updateUnlockBadge();
+}
+function updateUnlockBadge(){
+  const b = el('unlockBadge');
+  if(state.settings.strictUnlockByDistance){
+    b.className = 'badge lock';
+    b.textContent = '< ' + state.settings.unlockRadiusM + 'm';
+  } else {
+    b.className = 'badge off';
+    b.textContent = 'Pins frei';
+  }
+}
+function configReady(){
+  const c = window.VANESSA_CONFIG;
+  return c.SUPABASE_URL && c.SUPABASE_ANON_KEY && !c.SUPABASE_URL.includes('PASTE_') && !c.SUPABASE_ANON_KEY.includes('PASTE_');
+}
+function createClient(){
+  if(!configReady()) return null;
+  return window.supabase.createClient(window.VANESSA_CONFIG.SUPABASE_URL, window.VANESSA_CONFIG.SUPABASE_ANON_KEY);
+}
+function distanceMeters(a,b){
+  const R = 6371000;
+  const dLat = (b.lat-a.lat) * Math.PI/180;
+  const dLon = (b.lon-a.lon) * Math.PI/180;
+  const la1 = a.lat*Math.PI/180;
+  const la2 = b.lat*Math.PI/180;
+  const h = Math.sin(dLat/2)**2 + Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+function canOpenSpot(spot){
+  if(!state.settings.strictUnlockByDistance) return {ok:true, distance:null};
+  if(!state.userLocation) return {ok:false, distance:null, reason:'Standort nicht aktiv'};
+  const d = distanceMeters({lat:state.userLocation.lat,lng:state.userLocation.lng, lon:state.userLocation.lng}, {lat:spot.lat, lon:spot.lon});
+  return {ok:d <= state.settings.unlockRadiusM, distance:d, reason:d <= state.settings.unlockRadiusM ? '' : 'Noch zu weit weg'};
+}
+function createPinHtml(color,size){
+  return `<div class="pin-dot" style="width:${size}px;height:${size}px;background:${color}"></div>`;
+}
+function markerIcon(){
+  return L.divIcon({ className:'pin-host', html:createPinHtml(state.settings.pinColor, state.settings.pinSize), iconSize:[state.settings.pinSize, state.settings.pinSize], iconAnchor:[state.settings.pinSize/2, state.settings.pinSize/2] });
+}
+function getSpotPopupHtml(spot){
+  const openState = canOpenSpot(spot);
+  const info = openState.distance != null ? `${Math.round(openState.distance)} m entfernt` : (state.userLocation ? 'Distanz unbekannt' : 'Standort aus für Distanzcheck');
+  return `
+    <div class="map-popup">
+      <div class="map-popup-photo">${spot.spot_image_url ? `<img src="${escapeHtml(spot.spot_image_url)}" alt="${escapeHtml(spot.name)}">` : ''}</div>
+      <div class="map-popup-name">${escapeHtml(spot.name)}</div>
+      <div class="small-note">${openState.ok ? 'Bereit zum Öffnen.' : escapeHtml(openState.reason)} · ${escapeHtml(info)}</div>
+      <div class="map-popup-actions">
+        <a class="tiny-link" href="#" onclick="openSpotById(${Number(spot.id)});return false;">Öffnen</a>
+        <span class="badge ${spot.found ? 'ok' : 'off'}">${spot.found ? 'gefunden' : 'offen'}</span>
+      </div>
+    </div>`;
+}
+function addOrUpdateMarker(spot){
+  const existing = state.markers.get(spot.id);
+  if(existing){
+    existing.setLatLng([spot.lat, spot.lon]);
+    existing.setIcon(markerIcon());
+    existing.setPopupContent(getSpotPopupHtml(spot));
+    return;
+  }
+  const marker = L.marker([spot.lat, spot.lon], { icon: markerIcon() }).addTo(state.map);
+  marker.bindPopup(getSpotPopupHtml(spot));
+  marker.on('click', ()=> { setTimeout(()=>openSpotById(spot.id), 60); });
+  state.markers.set(spot.id, marker);
+}
+function rebuildMarkers(){
+  for(const marker of state.markers.values()) state.map.removeLayer(marker);
+  state.markers.clear();
+  state.spots.forEach(addOrUpdateMarker);
+}
+function renderList(){
+  const wrap = el('listWrap');
+  if(!state.spots.length){
+    wrap.innerHTML = `<div class="empty">Noch keine Verstecke da. Sobald du welche anlegst, marschiert hier Leben rein.</div>`;
+    return;
+  }
+  wrap.innerHTML = state.spots.map(spot => {
+    const gate = canOpenSpot(spot);
+    const dist = gate.distance != null ? `${Math.round(gate.distance)} m` : '–';
+    return `
+      <div class="spot-card" onclick="openSpotById(${Number(spot.id)})">
+        <div class="spot-thumb">${spot.spot_image_url ? `<img src="${escapeHtml(spot.spot_image_url)}" alt="${escapeHtml(spot.name)}">` : ''}</div>
+        <div>
+          <div class="spot-name">${escapeHtml(spot.name)}</div>
+          <div class="spot-meta">${spot.found ? 'Schon gefunden ✅' : 'Noch offen'} · Distanz: ${escapeHtml(dist)}</div>
+          <div class="spot-meta">${gate.ok ? 'Kann geöffnet werden' : escapeHtml(gate.reason || 'Noch gesperrt')}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+function formatCoord(n){ return Number(n).toFixed(6); }
+function openModal(html, title){
+  el('modalTitle').textContent = title || 'Versteck';
+  el('modalBody').innerHTML = html;
+  el('modal').classList.add('open');
+}
+function closeModal(){ el('modal').classList.remove('open'); }
+window.openSpotById = function(id){
+  const spot = state.spots.find(s => Number(s.id) === Number(id));
+  if(!spot) return;
+  state.selectedSpot = spot;
+  const gate = canOpenSpot(spot);
+  const distanceText = gate.distance != null ? `${Math.round(gate.distance)} m entfernt` : 'Distanz erst mit Standort verfügbar';
+  const imageBlock = spot.spot_image_url ? `<div class="hero-image"><img src="${escapeHtml(spot.spot_image_url)}" alt="${escapeHtml(spot.name)}"></div>` : '<div class="hero-image"></div>';
+  const gruss = spot.grussfoto_url ? `<div class="gruss-preview hero-image"><img src="${escapeHtml(spot.grussfoto_url)}" alt="Grussfoto"></div>` : '<div class="small-note">Noch kein Grussfoto hochgeladen.</div>';
+  const lockedHtml = !gate.ok ? `<div class="answer-box"><div class="answer-result">🔒 ${escapeHtml(gate.reason || 'Noch gesperrt')}</div><div class="small-note">${escapeHtml(distanceText)}</div></div>` : '';
+  const body = `
+    ${imageBlock}
+    <div class="kicker">${gate.ok ? 'Rätselstation offen' : 'Noch gesperrt'}</div>
+    ${lockedHtml}
+    <div class="section stack">
+      <div><b>Rätsel</b></div>
+      <div>${gate.ok ? escapeHtml(spot.riddle_text || 'Noch kein Rätsel eingetragen.') : 'Aktiviere Standort und komm näher ran – dann zeigt die Station alles.'}</div>
+    </div>
+    <div class="section stack">
+      <div><b>Notizen</b></div>
+      <div>${gate.ok ? escapeHtml(spot.notes || 'Keine Notizen.') : 'Noch geheim wie Omas Keksdose.'}</div>
+    </div>
+    <div class="section stack">
+      <div><b>Lösungsantwort</b></div>
+      <div class="row2">
+        <input id="answerAttemptInput" placeholder="Antwort eingeben">
+        <button class="btn" onclick="checkAnswer(${Number(spot.id)})">Prüfen</button>
+      </div>
+      <div id="answerResult" class="small-note">${escapeHtml(distanceText)}</div>
+    </div>
+    <div class="section stack">
+      <label class="checkbox"><input id="foundCheckbox" type="checkbox" ${spot.found ? 'checked' : ''} onchange="toggleFound(${Number(spot.id)}, this.checked)"> Gefunden</label>
+      <div class="small-note">Das kann auch einfach dein Häkchen-des-Tages sein.</div>
+    </div>
+    <div class="section stack">
+      <div><b>Grussfoto machen / hochladen</b></div>
+      <input id="grussfotoInput" type="file" accept="image/*" capture="environment">
+      <button class="btn primary" onclick="uploadGrussfoto(${Number(spot.id)})">Grussfoto hochladen</button>
+      ${gruss}
+    </div>
+    <div class="section stack">
+      <div class="small-note">Koordinaten: ${formatCoord(spot.lat)}, ${formatCoord(spot.lon)}</div>
+    </div>`;
+  openModal(body, spot.name);
+};
+window.checkAnswer = function(id){
+  const spot = state.spots.find(s => Number(s.id) === Number(id));
+  const input = (el('answerAttemptInput')?.value || '').trim();
+  const result = el('answerResult');
+  if(!spot || !result) return;
+  if(!input){ result.textContent = 'Noch nix eingegeben.'; return; }
+  const ok = (spot.solution_answer || '').trim().toLowerCase() === input.toLowerCase();
+  result.textContent = ok ? 'Bingo. Volltreffer 🎯' : 'Nope, noch mal überlegen.';
+};
+window.toggleFound = async function(id, checked){
+  const spot = state.spots.find(s => Number(s.id) === Number(id));
+  if(!spot) return;
+  spot.found = checked;
+  renderList();
+  addOrUpdateMarker(spot);
+  if(state.supabase){
+    const { error } = await state.supabase.from(window.VANESSA_CONFIG.TABLE_NAME).update({ found: checked }).eq('id', id);
+    if(error) status('Gefunden-Status lokal geändert, DB mochte es gerade nicht.');
+  }
+};
+window.uploadGrussfoto = async function(id){
+  const file = el('grussfotoInput')?.files?.[0];
+  const spot = state.spots.find(s => Number(s.id) === Number(id));
+  if(!file || !spot){ status('Bitte erst ein Bild wählen.'); return; }
+  if(!state.supabase){ status('Supabase ist noch nicht konfiguriert.'); return; }
+  const path = `${id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+  status('Lade Grussfoto hoch...');
+  const { error: upErr } = await state.supabase.storage.from(window.VANESSA_CONFIG.GRUSSFOTO_BUCKET).upload(path, file, { upsert:true });
+  if(upErr){ status('Upload fehlgeschlagen: ' + upErr.message); return; }
+  const { data } = state.supabase.storage.from(window.VANESSA_CONFIG.GRUSSFOTO_BUCKET).getPublicUrl(path);
+  const publicUrl = data.publicUrl;
+  const { error } = await state.supabase.from(window.VANESSA_CONFIG.TABLE_NAME).update({ grussfoto_url: publicUrl }).eq('id', id);
+  if(error){ status('Upload ok, DB-Update fehlgeschlagen: ' + error.message); return; }
+  spot.grussfoto_url = publicUrl;
+  openSpotById(id);
+  renderList();
+  status('Grussfoto sitzt. Wie ein Wanderstock im Kies.');
+};
+function fillAdminForm(spot){
+  el('spotIdInput').value = spot?.id || '';
+  el('spotNameInput').value = spot?.name || '';
+  el('spotLatInput').value = spot?.lat ?? '';
+  el('spotLonInput').value = spot?.lon ?? '';
+  el('spotImageInput').value = spot?.spot_image_url || '';
+  el('spotRiddleInput').value = spot?.riddle_text || '';
+  el('spotNotesInput').value = spot?.notes || '';
+  el('spotAnswerInput').value = spot?.solution_answer || '';
+  el('spotFoundInput').value = String(!!spot?.found);
+}
+function readAdminForm(){
+  return {
+    id: el('spotIdInput').value ? Number(el('spotIdInput').value) : null,
+    name: el('spotNameInput').value.trim(),
+    lat: Number(el('spotLatInput').value),
+    lon: Number(el('spotLonInput').value),
+    spot_image_url: el('spotImageInput').value.trim(),
+    riddle_text: el('spotRiddleInput').value.trim(),
+    notes: el('spotNotesInput').value.trim(),
+    solution_answer: el('spotAnswerInput').value.trim(),
+    found: el('spotFoundInput').value === 'true'
+  };
+}
+async function uploadAdminGrussfotoIfNeeded(spotId){
+  const file = el('adminGrussFileInput').files?.[0];
+  if(!file || !state.supabase) return null;
+  const path = `${spotId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+  const { error: upErr } = await state.supabase.storage.from(window.VANESSA_CONFIG.GRUSSFOTO_BUCKET).upload(path, file, { upsert:true });
+  if(upErr) throw upErr;
+  const { data } = state.supabase.storage.from(window.VANESSA_CONFIG.GRUSSFOTO_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+async function saveSpot(){
+  if(!state.supabase || !state.user){ status('Erst einloggen. Sonst bleibt der Speichern-Knopf nur hübsch.'); return; }
+  const data = readAdminForm();
+  if(!data.name || !Number.isFinite(data.lat) || !Number.isFinite(data.lon)){ status('Name + gültige Koordinaten bitte.'); return; }
+  status('Speichere Spot...');
+  if(data.id){
+    const grussfoto = await uploadAdminGrussfotoIfNeeded(data.id).catch(err => { status('Grussfoto-Upload scheiterte: ' + err.message); return null; });
+    const payload = { ...data };
+    if(grussfoto) payload.grussfoto_url = grussfoto;
+    const { error } = await state.supabase.from(window.VANESSA_CONFIG.TABLE_NAME).update(payload).eq('id', data.id);
+    if(error){ status('Speichern fehlgeschlagen: ' + error.message); return; }
+  } else {
+    const { data: created, error } = await state.supabase.from(window.VANESSA_CONFIG.TABLE_NAME).insert(data).select().single();
+    if(error){ status('Anlegen fehlgeschlagen: ' + error.message); return; }
+    if(created?.id){
+      const grussfoto = await uploadAdminGrussfotoIfNeeded(created.id).catch(() => null);
+      if(grussfoto){ await state.supabase.from(window.VANESSA_CONFIG.TABLE_NAME).update({ grussfoto_url: grussfoto }).eq('id', created.id); }
+    }
+  }
+  await loadSpots();
+  fillAdminForm(null);
+  el('adminGrussFileInput').value = '';
+  status('Spot gespeichert. Pilgerstempel drauf.');
+}
+async function deleteSpot(){
+  const id = Number(el('spotIdInput').value);
+  if(!id || !state.supabase || !state.user){ status('Zum Löschen musst du eingeloggt sein und einen Spot wählen.'); return; }
+  const { error } = await state.supabase.from(window.VANESSA_CONFIG.TABLE_NAME).delete().eq('id', id);
+  if(error){ status('Löschen fehlgeschlagen: ' + error.message); return; }
+  await loadSpots();
+  fillAdminForm(null);
+  status('Spot gelöscht. Puff – weg wie eine schlechte Blase am Fuß.');
+}
+async function loadSpots(){
+  if(state.supabase){
+    const { data, error } = await state.supabase.from(window.VANESSA_CONFIG.TABLE_NAME).select('*').order('id', { ascending:true });
+    if(error){ status('DB-Lesen fehlgeschlagen: ' + error.message); state.spots = []; }
+    else state.spots = data || [];
+  } else {
+    state.spots = [];
+  }
+  rebuildMarkers();
+  renderList();
+}
+async function refreshAuth(){
+  if(!state.supabase){
+    el('authInfo').textContent = 'Supabase noch nicht eingetragen.';
+    el('adminSection').classList.add('hidden');
+    return;
+  }
+  const { data } = await state.supabase.auth.getSession();
+  state.user = data?.session?.user || null;
+  el('authInfo').textContent = state.user ? `Eingeloggt als ${state.user.email}` : 'Noch nicht eingeloggt.';
+  el('adminSection').classList.toggle('hidden', !state.user);
+  el('adminHint').textContent = state.user ? 'Admin-Modus aktiv. Wähle einen Spot aus der Karte oder erstelle einen neuen.' : 'Nicht eingeloggt.';
+}
+async function doLogin(){
+  if(!state.supabase){ status('Bitte zuerst SUPABASE_URL und ANON_KEY im Code eintragen.'); return; }
+  const email = el('loginEmail').value.trim();
+  const password = el('loginPassword').value;
+  const { error } = await state.supabase.auth.signInWithPassword({ email, password });
+  if(error){ status('Login fehlgeschlagen: ' + error.message); return; }
+  await refreshAuth();
+  status('Login sitzt. Admin-Hut aufgesetzt.');
+}
+async function doLogout(){
+  if(!state.supabase) return;
+  await state.supabase.auth.signOut();
+  await refreshAuth();
+  status('Ausgeloggt. Feierabend für den Admin.');
+}
+function downloadBackup(){
+  const data = {
+    exported_at: new Date().toISOString(),
+    settings: state.settings,
+    spots: state.spots
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `vanessaontour-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function activateLocation(){
+  if(!navigator.geolocation){ status('Geolocation wird hier leider nicht unterstützt.'); return; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    state.userLocation = { lat, lng: lon };
+    if(state.userLocationMarker) state.map.removeLayer(state.userLocationMarker);
+    if(state.userLocationCircle) state.map.removeLayer(state.userLocationCircle);
+    state.userLocationMarker = L.circleMarker([lat, lon], { radius:8, weight:2, color:'#0f766e', fillColor:'#14b8a6', fillOpacity:.9 }).addTo(state.map);
+    state.userLocationCircle = L.circle([lat, lon], { radius: state.settings.unlockRadiusM, weight:1.5, color:'#0f766e', fillColor:'#14b8a6', fillOpacity:.08 }).addTo(state.map);
+    status('Standort aktiv. Jetzt weiß die Karte grob, wo der Wanderschuh drückt.');
+    renderList();
+    rebuildMarkers();
+  }, err => {
+    status('Standort konnte nicht geholt werden: ' + err.message);
+  }, { enableHighAccuracy:true, timeout:12000, maximumAge:30000 });
+}
+function initMap(){
+  state.map = L.map('map', { zoomControl:true, preferCanvas:true });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'&copy; OpenStreetMap' }).addTo(state.map);
+  state.map.fitBounds(window.VANESSA_CONFIG.START_BOUNDS, { padding:[20,20] });
+}
+function openPanel(panelId){
+  qsa('.panel').forEach(p => p.classList.remove('open'));
+  if(panelId) el(panelId)?.classList.add('open');
+  qsa('.dock button[data-panel]').forEach(b => b.classList.toggle('active', b.dataset.panel === panelId));
+}
+function setView(view){
+  qsa('[data-view-btn]').forEach(b => b.classList.toggle('active', b.dataset.viewBtn === view));
+  if(view === 'map') openPanel('listPanel');
+  if(view === 'spots') openPanel('listPanel');
+}
+function initUi(){
+  el('pinColorInput').value = state.settings.pinColor;
+  el('pinSizeInput').value = state.settings.pinSize;
+  el('unlockRadiusInput').value = state.settings.unlockRadiusM;
+  el('strictUnlockInput').value = String(state.settings.strictUnlockByDistance);
+  updateUnlockBadge();
+
+  qsa('[data-view-btn]').forEach(btn => btn.addEventListener('click', ()=> setView(btn.dataset.viewBtn)));
+  qsa('[data-panel]').forEach(btn => btn.addEventListener('click', ()=> openPanel(btn.dataset.panel)));
+  qsa('[data-close]').forEach(btn => btn.addEventListener('click', ()=> el(btn.dataset.close).classList.remove('open')));
+  el('fitRouteBtn').addEventListener('click', ()=> state.map.fitBounds(window.VANESSA_CONFIG.START_BOUNDS, { padding:[20,20] }));
+  el('newFromCenterBtn').addEventListener('click', ()=> {
+    if(!state.user){ status('Zum Erstellen bitte einloggen.'); openPanel('settingsPanel'); return; }
+    const c = state.map.getCenter();
+    fillAdminForm({ name:'Neues Versteck', lat:c.lat.toFixed(6), lon:c.lng.toFixed(6), spot_image_url:'', riddle_text:'', notes:'', solution_answer:'', found:false });
+    openPanel('settingsPanel');
+  });
+  el('closeModalBtn').addEventListener('click', closeModal);
+  el('modal').addEventListener('click', (e)=> { if(e.target === el('modal')) closeModal(); });
+  el('locateBtn').addEventListener('click', activateLocation);
+  el('loginBtn').addEventListener('click', doLogin);
+  el('logoutBtn').addEventListener('click', doLogout);
+  el('downloadBackupBtn').addEventListener('click', downloadBackup);
+  el('saveSpotBtn').addEventListener('click', saveSpot);
+  el('deleteSpotBtn').addEventListener('click', deleteSpot);
+  el('newSpotBtn').addEventListener('click', ()=> fillAdminForm({ found:false }));
+
+  el('pinColorInput').addEventListener('input', e => { state.settings.pinColor = e.target.value; saveSettings(); rebuildMarkers(); });
+  el('pinSizeInput').addEventListener('input', e => { state.settings.pinSize = Number(e.target.value); saveSettings(); rebuildMarkers(); });
+  el('unlockRadiusInput').addEventListener('change', e => {
+    state.settings.unlockRadiusM = Math.max(50, Number(e.target.value) || 200);
+    saveSettings();
+    if(state.userLocationCircle && state.userLocation){
+      state.userLocationCircle.setRadius(state.settings.unlockRadiusM);
+    }
+    renderList();
+  });
+  el('strictUnlockInput').addEventListener('change', e => { state.settings.strictUnlockByDistance = e.target.value === 'true'; saveSettings(); renderList(); rebuildMarkers(); });
+}
+async function wireRealtime(){
+  if(!state.supabase) return;
+  state.supabase.channel('vanessa-spots')
+    .on('postgres_changes', { event:'*', schema:'public', table:window.VANESSA_CONFIG.TABLE_NAME }, async () => {
+      await loadSpots();
+    })
+    .subscribe();
+}
+async function start(){
+  initMap();
+  initUi();
+  state.supabase = createClient();
+  if(state.supabase){
+    await refreshAuth();
+    await loadSpots();
+    await wireRealtime();
+    status('Datenbank verbunden. Die Pilgerpins sind am Start.');
+  } else {
+    await refreshAuth();
+    await loadSpots();
+    status('V1 fertig. Jetzt nur noch Supabase-URL + Key eintragen, dann rollt der Laden.');
+  }
+}
+start();
+</script>
+</body>
+</html>
