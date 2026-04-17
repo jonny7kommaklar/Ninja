@@ -186,8 +186,8 @@ label{display:block;font-size:12px;color:#334155}
   <div class="panel-head"><div><div class="panel-title">Setup & Einstellungen</div><div class="panel-sub">Supabase, Pinoptik, Backup und 200m-Regel.</div></div><button class="panel-close" data-panel-close>✕</button></div>
   <div class="panel-body">
     <div class="section stack">
-      <div class="row2"><button class="btn" id="connectBtn">Neu verbinden</button><button class="btn" id="saveSettingsBtn">Optik speichern</button></div>
-      <div class="small-note hidden" id="adminHint">Admin erkannt. Hier darfst du jetzt auch den Pin-Editor öffnen und neue Pins setzen.</div>
+      <div class="row2"><button class="btn" id="connectBtn">Neu verbinden</button><button class="btn" id="saveSettingsBtn">Style speichern</button></div>
+      <div class="small-note hidden" id="adminHint">Admin erkannt</div>
       <button class="btn hidden" id="openEditorFromSettingsBtn">Pin-Editor öffnen</button>
     </div>
     <div class="section stack">
@@ -195,7 +195,7 @@ label{display:block;font-size:12px;color:#334155}
         <div><label>Pinfarbe</label><input id="pinColor" type="color" value="#ff5a36"></div>
         <div><label>Pingröße</label><input id="pinSize" type="range" min="12" max="34" step="1" value="18"></div>
       </div>
-      <label class="checkbox"><input id="lockByDistance" type="checkbox"> Pins erst unter 200m öffnen (Standort nötig)</label>
+      <label class="checkbox"><input id="lockByDistance" type="checkbox"> Pins erst unter 200m öffnen</label>
       <div><label>Grussfoto-Bucket</label><input id="greetingBucket" value="greeting-photos"></div>
       <div><label>Spotbild-Bucket (optional)</label><input id="spotBucket" value="spot-images"></div>
       <div class="row2"><button class="btn" id="downloadBackupBtn">Backup JSON</button><button class="btn" id="reloadBtn">Pins neu laden</button></div>
@@ -216,12 +216,12 @@ label{display:block;font-size:12px;color:#334155}
     </div>
     <div class="section stack">
       <div><label>Deine Lösung</label><input id="answerInput" placeholder="Antwort eintippen"></div>
-      <div class="row2"><button class="btn" id="checkAnswerBtn">Antwort prüfen</button><button class="btn" id="toggleFoundBtn">Gefunden umschalten</button></div>
+      <div class="row2"><button class="btn" id="checkAnswerBtn">Antwort prüfen</button><button class="btn" id="toggleFoundBtn">als gefunden markieren</button></div>
       <div id="answerResult" class="answer-result"></div>
     </div>
     <div class="section stack">
-      <strong>Grussfoto</strong>
-      <div class="small-note">Unten wird erst brav „mach mal ein Foto“ gespielt, danach landet das Bild hier drin.</div>
+      <strong>Foto-Upload</strong>
+      <div class="small-note">Lad hier einen Gruß, eine Antwort, einen Beweis oder Sonstiges hoch :D</div>
       <div id="greetingPhotoWrap" class="modal-photo hidden" style="height:min(22vh,160px)"></div>
       <input id="greetingUploadInput" type="file" accept="image/*">
       <button class="btn primary" id="uploadGreetingBtn">Grussfoto hochladen</button>
