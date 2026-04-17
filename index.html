@@ -159,7 +159,8 @@ label{display:block;font-size:12px;color:#334155}
         <button class="btn" id="pickOnMapBtn">Auf Karte wählen</button>
         <button class="btn primary" id="saveSpotBtn">Speichern</button>
       </div>
-      <div class="row2">
+      <div class="row3">
+        <button class="btn" id="cancelDraftBtn">Abbrechen</button>
         <button class="btn" id="newSpotBtn">Neu / Formular leeren</button>
         <button class="btn danger" id="deleteSpotBtn">Löschen</button>
       </div>
@@ -237,7 +238,6 @@ const DEFAULT_ZOOM = 8;
 const SUPABASE_URL = 'https://vtdcvjpfqyebkekqfsvw.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_sKUrNKgQQmxJQSALbWWqrw_fHbQQBD5';
 const ADMIN_EMAIL = 'jonny@camino.ninja';
-
 const state = {
   map: null,
   markersLayer: null,
@@ -262,7 +262,7 @@ function bindEls(){
   [
     'searchInput','foundFilter','nearbyOnly','searchMeta','searchResults','spotName','spotSolution','spotImageUrl','spotRiddle','spotNotes','spotLat','spotLng','spotFound',
     'pickOnMapBtn','saveSpotBtn','newSpotBtn','deleteSpotBtn','loginEmail','loginPassword','statusPill','pinColor','pinSize','lockByDistance','greetingBucket','spotBucket',
-    'modalTitle','modalMeta','modalPhoto','modalRiddle','modalNotes','answerInput','answerResult','greetingPhotoWrap','greetingUploadInput','openEditorFromSettingsBtn','adminHint'
+    'modalTitle','modalMeta','modalPhoto','modalRiddle','modalNotes','answerInput','answerResult','greetingPhotoWrap','greetingUploadInput','openEditorFromSettingsBtn','adminHint','cancelDraftBtn'
   ].forEach(id => els[id] = document.getElementById(id));
 }
 
@@ -360,6 +360,12 @@ function clearDraftMarker(){
   state.draftLatLng = null;
   state.isPickingOnMap = false;
   q('#addSpotBtn').classList.remove('pending');
+}
+
+function cancelDraft(){
+  clearDraftMarker();
+  fillEditor(null);
+  closePanels();
 }
 
 function isAdmin(){
@@ -698,6 +704,10 @@ function wire(){
   q('#locateBtn').addEventListener('click', startLocationWatch);
   q('#addSpotBtn').addEventListener('click', () => {
     if(!isAdmin()) return toast('Neue Pins nur für jonny@camino.ninja.');
+    if(state.isPickingOnMap || state.draftMarker){
+      cancelDraft();
+      return;
+    }
     fillEditor(null);
     const center = state.map.getCenter();
     setDraftMarker(center, true);
@@ -710,6 +720,7 @@ function wire(){
     closePanels();
   });
   q('#saveSpotBtn').addEventListener('click', saveSpot);
+  q('#cancelDraftBtn').addEventListener('click', cancelDraft);
   q('#newSpotBtn').addEventListener('click', () => fillEditor(null));
   q('#deleteSpotBtn').addEventListener('click', deleteSpot);
   q('#connectBtn').addEventListener('click', connectSupabase);
@@ -728,6 +739,7 @@ function wire(){
   q('#toggleFoundBtn').addEventListener('click', () => state.selectedSpot && toggleFound(state.selectedSpot));
   q('#uploadGreetingBtn').addEventListener('click', uploadGreeting);
   q('#modal').addEventListener('click', e => { if(e.target.id === 'modal') closeModal(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && (state.isPickingOnMap || state.draftMarker)) cancelDraft(); });
 }
 
 window.__openSpot = openSpot;
