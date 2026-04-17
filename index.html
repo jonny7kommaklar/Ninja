@@ -171,7 +171,7 @@ hr.soft{border:0;border-top:1px solid rgba(15,23,42,.08);margin:4px 0}
             <input id="spotLatInput" type="number" step="0.000001" placeholder="41.14961">
           </label>
           <label>Längengrad
-            <input id="spotLonInput" type="number" step="0.000001" placeholder="-8.61099">
+            <input id="spotLngInput" type="number" step="0.000001" placeholder="-8.61099">
           </label>
         </div>
         <label>Spot-Bild URL
@@ -295,16 +295,16 @@ function createClient(){
 function distanceMeters(a,b){
   const R = 6371000;
   const dLat = (b.lat-a.lat) * Math.PI/180;
-  const dLon = (b.lon-a.lon) * Math.PI/180;
+  const dLng = (b.lng-a.lng) * Math.PI/180;
   const la1 = a.lat*Math.PI/180;
   const la2 = b.lat*Math.PI/180;
-  const h = Math.sin(dLat/2)**2 + Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;
+  const h = Math.sin(dLat/2)**2 + Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)**2;
   return 2*R*Math.asin(Math.sqrt(h));
 }
 function canOpenSpot(spot){
   if(!state.settings.strictUnlockByDistance) return {ok:true, distance:null};
   if(!state.userLocation) return {ok:false, distance:null, reason:'Standort nicht aktiv'};
-  const d = distanceMeters({lat:state.userLocation.lat,lng:state.userLocation.lng, lon:state.userLocation.lng}, {lat:spot.lat, lon:spot.lon});
+  const d = distanceMeters({lat:state.userLocation.lat,lng:state.userLocation.lng, lng:state.userLocation.lng}, {lat:spot.lat, lng:spot.lng});
   return {ok:d <= state.settings.unlockRadiusM, distance:d, reason:d <= state.settings.unlockRadiusM ? '' : 'Noch zu weit weg'};
 }
 function createPinHtml(color,size){
@@ -330,12 +330,12 @@ function getSpotPopupHtml(spot){
 function addOrUpdateMarker(spot){
   const existing = state.markers.get(spot.id);
   if(existing){
-    existing.setLatLng([spot.lat, spot.lon]);
+    existing.setLatLng([spot.lat, spot.lng]);
     existing.setIcon(markerIcon());
     existing.setPopupContent(getSpotPopupHtml(spot));
     return;
   }
-  const marker = L.marker([spot.lat, spot.lon], { icon: markerIcon() }).addTo(state.map);
+  const marker = L.marker([spot.lat, spot.lng], { icon: markerIcon() }).addTo(state.map);
   marker.bindPopup(getSpotPopupHtml(spot));
   marker.on('click', ()=> { setTimeout(()=>openSpotById(spot.id), 60); });
   state.markers.set(spot.id, marker);
@@ -412,7 +412,7 @@ window.openSpotById = function(id){
       ${gruss}
     </div>
     <div class="section stack">
-      <div class="small-note">Koordinaten: ${formatCoord(spot.lat)}, ${formatCoord(spot.lon)}</div>
+      <div class="small-note">Koordinaten: ${formatCoord(spot.lat)}, ${formatCoord(spot.lng)}</div>
     </div>`;
   openModal(body, spot.name);
 };
@@ -458,7 +458,7 @@ function fillAdminForm(spot){
   el('spotIdInput').value = spot?.id || '';
   el('spotNameInput').value = spot?.name || '';
   el('spotLatInput').value = spot?.lat ?? '';
-  el('spotLonInput').value = spot?.lon ?? '';
+  el('spotLngInput').value = spot?.lng ?? '';
   el('spotImageInput').value = spot?.spot_image_url || '';
   el('spotRiddleInput').value = spot?.riddle_text || '';
   el('spotNotesInput').value = spot?.notes || '';
@@ -470,7 +470,7 @@ function readAdminForm(){
     id: el('spotIdInput').value ? Number(el('spotIdInput').value) : null,
     name: el('spotNameInput').value.trim(),
     lat: Number(el('spotLatInput').value),
-    lon: Number(el('spotLonInput').value),
+    lng: Number(el('spotLngInput').value),
     spot_image_url: el('spotImageInput').value.trim(),
     riddle_text: el('spotRiddleInput').value.trim(),
     notes: el('spotNotesInput').value.trim(),
@@ -490,7 +490,7 @@ async function uploadAdminGrussfotoIfNeeded(spotId){
 async function saveSpot(){
   if(!state.supabase || !state.user){ status('Erst einloggen. Sonst bleibt der Speichern-Knopf nur hübsch.'); return; }
   const data = readAdminForm();
-  if(!data.name || !Number.isFinite(data.lat) || !Number.isFinite(data.lon)){ status('Name + gültige Koordinaten bitte.'); return; }
+  if(!data.name || !Number.isFinite(data.lat) || !Number.isFinite(data.lng)){ status('Name + gültige Koordinaten bitte.'); return; }
   status('Speichere Spot...');
   if(data.id){
     const grussfoto = await uploadAdminGrussfotoIfNeeded(data.id).catch(err => { status('Grussfoto-Upload scheiterte: ' + err.message); return null; });
@@ -574,12 +574,12 @@ function downloadBackup(){
 function activateLocation(){
   if(!navigator.geolocation){ status('Geolocation wird hier leider nicht unterstützt.'); return; }
   navigator.geolocation.getCurrentPosition(pos => {
-    const lat = pos.coords.latitude, lon = pos.coords.longitude;
-    state.userLocation = { lat, lng: lon };
+    const lat = pos.coords.latitude, lng = pos.coords.lnggitude;
+    state.userLocation = { lat, lng: lng };
     if(state.userLocationMarker) state.map.removeLayer(state.userLocationMarker);
     if(state.userLocationCircle) state.map.removeLayer(state.userLocationCircle);
-    state.userLocationMarker = L.circleMarker([lat, lon], { radius:8, weight:2, color:'#0f766e', fillColor:'#14b8a6', fillOpacity:.9 }).addTo(state.map);
-    state.userLocationCircle = L.circle([lat, lon], { radius: state.settings.unlockRadiusM, weight:1.5, color:'#0f766e', fillColor:'#14b8a6', fillOpacity:.08 }).addTo(state.map);
+    state.userLocationMarker = L.circleMarker([lat, lng], { radius:8, weight:2, color:'#0f766e', fillColor:'#14b8a6', fillOpacity:.9 }).addTo(state.map);
+    state.userLocationCircle = L.circle([lat, lng], { radius: state.settings.unlockRadiusM, weight:1.5, color:'#0f766e', fillColor:'#14b8a6', fillOpacity:.08 }).addTo(state.map);
     status('Standort aktiv. Jetzt weiß die Karte grob, wo der Wanderschuh drückt.');
     renderList();
     rebuildMarkers();
@@ -616,7 +616,7 @@ function initUi(){
   el('newFromCenterBtn').addEventListener('click', ()=> {
     if(!state.user){ status('Zum Erstellen bitte einloggen.'); openPanel('settingsPanel'); return; }
     const c = state.map.getCenter();
-    fillAdminForm({ name:'Neues Versteck', lat:c.lat.toFixed(6), lon:c.lng.toFixed(6), spot_image_url:'', riddle_text:'', notes:'', solution_answer:'', found:false });
+    fillAdminForm({ name:'Neues Versteck', lat:c.lat.toFixed(6), lng:c.lng.toFixed(6), spot_image_url:'', riddle_text:'', notes:'', solution_answer:'', found:false });
     openPanel('settingsPanel');
   });
   el('closeModalBtn').addEventListener('click', closeModal);
