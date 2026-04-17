@@ -467,7 +467,6 @@ function fillAdminForm(spot){
 }
 function readAdminForm(){
   return {
-    id: el('spotIdInput').value ? Number(el('spotIdInput').value) : null,
     name: el('spotNameInput').value.trim(),
     lat: Number(el('spotLatInput').value),
     lng: Number(el('spotLngInput').value),
