@@ -27,12 +27,14 @@ html,body{height:100%;margin:0;font-family:Inter,Arial,sans-serif;overflow:hidde
 #map{position:fixed;inset:0;z-index:1}
 .glass{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:var(--bg);border:1px solid var(--line);box-shadow:var(--shadow)}
 .topbar{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:40;display:flex;justify-content:center;pointer-events:none}
-.switcher{pointer-events:auto;display:flex;gap:6px;padding:5px;border-radius:18px;max-width:min(100%,340px)}
-.switcher button{border:0;background:transparent;padding:10px 14px;border-radius:14px;font-weight:800;font-size:13px;color:#334155}
-.switcher button.active{background:linear-gradient(90deg,var(--teal),var(--blue));color:#fff}
-.dock{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);z-index:40;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:8px;border-radius:18px}
+.brandbar{pointer-events:auto;display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px;border-radius:18px;min-height:50px;max-width:min(100%,360px)}
+.brandbar .logo-dot{width:11px;height:11px;border-radius:999px;background:linear-gradient(135deg,var(--teal),var(--blue));box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+.brandbar .title{font-size:15px;font-weight:900;letter-spacing:.02em}
+.brandbar .sub{font-size:10px;color:var(--muted);margin-top:1px}
+.dock{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);z-index:40;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;border-radius:18px}
 .dock button{border:0;background:rgba(255,255,255,.78);padding:9px 6px;border-radius:14px;font-size:11px;font-weight:800;color:#334155;display:grid;gap:2px;place-items:center;min-height:54px}
 .dock button.active{background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff}
+.dock button.admin-only{display:none}
 .dock .icon{font-size:17px;line-height:1}
 .panel{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 78px);z-index:41;border-radius:22px 22px 18px 18px;display:none;overflow:hidden;max-height:min(calc(100vh - 170px), calc((100vh - 170px) * .72))}
 .panel.open{display:flex;flex-direction:column}
@@ -59,22 +61,30 @@ label{display:block;font-size:12px;color:#334155}
 #statusPill{padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;background:rgba(15,23,42,.08)}
 #statusPill.ok{background:rgba(22,163,74,.16);color:#166534}
 #statusPill.warn{background:rgba(220,38,38,.12);color:#991b1b}
-#listView{position:fixed;inset:calc(env(safe-area-inset-top,0px) + 62px) 10px calc(env(safe-area-inset-bottom,0px) + 82px) 10px;z-index:39;display:none;border-radius:20px;padding:10px;overflow:auto}
-body[data-view="list"] #listView{display:block}
-body[data-view="list"] .panel{display:none !important}
 .list-grid{display:grid;gap:8px}
 .card{padding:10px;border:1px solid rgba(15,23,42,.08);border-radius:16px;background:rgba(255,255,255,.62);display:grid;grid-template-columns:84px 1fr;gap:10px}
 .thumb{width:84px;height:72px;border-radius:12px;overflow:hidden;background:#e2e8f0}.thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .card h3{margin:0 0 4px 0;font-size:15px}
 .muted{font-size:11px;color:var(--muted)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.actions .edit-btn{padding:5px 8px;font-size:11px;min-height:auto;border-color:rgba(37,99,235,.18);background:rgba(37,99,235,.09);color:#2563eb}
 .leaflet-popup-content-wrapper{max-width:min(86vw,340px);overflow:hidden;border-radius:18px}
 .leaflet-popup-content{margin:10px 10px 12px}
 .popup{display:grid;gap:8px}.popup .thumb{width:100%;height:116px}.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;background:rgba(15,23,42,.08)}
-.spot-icon-host{background:transparent;border:0}.spot-wrap{display:flex;flex-direction:column;align-items:center;transform:translateY(-8px)}.spot-dot{border:2px solid #fff;border-radius:999px;box-shadow:0 4px 14px rgba(15,23,42,.22)}.spot-label{background:rgba(255,255,255,.92);padding:2px 6px;border-radius:999px;line-height:1.2;white-space:nowrap;margin-bottom:4px;box-shadow:0 4px 10px rgba(15,23,42,.12);font-size:11px;font-weight:700;max-width:150px;overflow:hidden;text-overflow:ellipsis}
-.locate-btn,.fab{position:fixed;right:12px;z-index:42;width:50px;height:50px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.88);color:var(--text);font-size:22px;box-shadow:0 10px 26px rgba(15,23,42,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.spot-tooltip{background:rgba(255,255,255,.94);padding:2px 8px;border-radius:999px;line-height:1.2;box-shadow:0 4px 10px rgba(15,23,42,.12);font-size:11px;font-weight:700;border:0;color:var(--text)}
+.leaflet-tooltip.spot-tooltip:before{display:none}
+.draft-pin-icon{background:transparent;border:0}
+.draft-pin-wrap{position:relative;width:30px;height:42px}
+.draft-pin-body{position:absolute;left:50%;top:0;transform:translateX(-50%);width:26px;height:26px;border-radius:999px;background:linear-gradient(135deg,var(--teal),var(--blue));border:3px solid #fff;box-shadow:0 10px 22px rgba(15,23,42,.28)}
+.draft-pin-tail{position:absolute;left:50%;top:18px;transform:translateX(-50%) rotate(45deg);width:16px;height:16px;background:linear-gradient(135deg,var(--teal),var(--blue));border-radius:0 0 4px 0;border-right:3px solid #fff;border-bottom:3px solid #fff}
+.locate-btn,.fab{position:fixed;right:12px;z-index:42;width:52px;height:52px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.88);color:var(--text);font-size:22px;box-shadow:0 10px 26px rgba(15,23,42,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease}
 .locate-btn{bottom:calc(env(safe-area-inset-bottom,0px) + 148px)}
 .fab{bottom:calc(env(safe-area-inset-bottom,0px) + 208px);font-size:28px;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff}
+.locate-btn:hover,.fab:hover{transform:translateY(-1px)}
+.locate-btn.active,.fab.active{transform:scale(.96);box-shadow:0 16px 34px rgba(15,23,42,.28)}
+.locate-btn.active{background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff}
+.fab.pending{background:linear-gradient(135deg,#0f766e,#2563eb);color:#fff;box-shadow:0 0 0 5px rgba(37,99,235,.12),0 18px 34px rgba(15,23,42,.24)}
+.fab.admin-hidden{display:none !important}
 #modal{position:fixed;inset:0;background:rgba(2,6,23,.38);display:none;align-items:flex-end;z-index:60;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 78px)}
 #modal.open{display:flex}
 #modalInner{width:100%;border-radius:24px 24px 0 0;padding:12px;max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 86px);overflow:auto;display:grid;gap:10px}
@@ -85,20 +95,18 @@ body[data-view="list"] .panel{display:none !important}
   .dock{left:auto;right:10px;width:320px}
   .topbar{justify-content:flex-start;left:10px;right:auto}
   .panel{left:10px;right:auto;width:420px;max-height:calc(100vh - 170px)}
-  #listView{left:10px;right:auto;width:460px}
   #modal{justify-content:flex-start;align-items:stretch;padding:14px 0 14px 14px}
   #modalInner{width:430px;border-radius:24px;max-height:calc(100dvh - 28px)}
 }
 </style>
 </head>
-<body data-view="map">
+<body>
 <div id="map"></div>
-<div class="topbar"><div class="glass switcher"><button data-switch="map" class="active">MAP</button><button data-switch="list">LISTE</button></div></div>
+<div class="topbar"><div class="glass brandbar"><div class="logo-dot"></div><div><div class="title">Vanessa on Tour</div><div class="sub">Camino pins, Rätsel & kleine Wegmagie</div></div></div></div>
 <button class="fab" id="addSpotBtn" title="Neuen Pin setzen">＋</button>
 <button class="locate-btn" id="locateBtn" title="Mein Standort">📍</button>
 <div class="glass dock">
   <button data-panel-btn="search"><span class="icon">🔎</span><span>SUCHE</span></button>
-  <button data-panel-btn="editor"><span class="icon">🧭</span><span>PIN</span></button>
   <button data-panel-btn="account"><span class="icon">👤</span><span>LOGIN</span></button>
   <button data-panel-btn="settings"><span class="icon">⚙️</span><span>SETUP</span></button>
 </div>
@@ -177,10 +185,9 @@ body[data-view="list"] .panel{display:none !important}
   <div class="panel-head"><div><div class="panel-title">Setup & Einstellungen</div><div class="panel-sub">Supabase, Pinoptik, Backup und 200m-Regel.</div></div><button class="panel-close" data-panel-close>✕</button></div>
   <div class="panel-body">
     <div class="section stack">
-      <div><label>Supabase URL</label><input id="sbUrl" placeholder="https://xxxx.supabase.co"></div>
-      <div><label>Anon Key</label><textarea id="sbKey" placeholder="eyJ..." style="min-height:88px"></textarea></div>
-      <div class="row2"><button class="btn" id="connectBtn">Verbinden</button><button class="btn" id="saveSettingsBtn">Lokal speichern</button></div>
-      <div class="small-note">Repo-only reicht für feste Inhalte. Für Grussfoto-Uploads ist Supabase aber deutlich entspannter als ein GitHub-Pages-Hokuspokus.</div>
+      <div class="row2"><button class="btn" id="connectBtn">Neu verbinden</button><button class="btn" id="saveSettingsBtn">Optik speichern</button></div>
+      <div class="small-note hidden" id="adminHint">Admin erkannt. Hier darfst du jetzt auch den Pin-Editor öffnen und neue Pins setzen.</div>
+      <button class="btn hidden" id="openEditorFromSettingsBtn">Pin-Editor öffnen</button>
     </div>
     <div class="section stack">
       <div class="row2">
@@ -194,11 +201,6 @@ body[data-view="list"] .panel{display:none !important}
     </div>
   </div>
 </section>
-
-<div id="listView" class="glass">
-  <div class="panel-head"><div><div class="panel-title">Pinliste</div><div class="panel-sub">Alle Verstecke auf einen Blick.</div></div></div>
-  <div class="panel-body"><div id="listCards" class="list-grid"></div></div>
-</div>
 
 <div id="modal">
   <div id="modalInner" class="glass">
@@ -227,9 +229,15 @@ body[data-view="list"] .panel{display:none !important}
 </div>
 
 <script>
-const STORAGE_KEY = 'vanessa_on_tour_settings_v1';
+const STORAGE_KEY = 'vanessa_on_tour_settings_v2';
 const DEFAULT_CENTER = [41.35, -8.55];
 const DEFAULT_ZOOM = 8;
+
+// >>> HIER EURE SUPABASE DATEN FEST EINTRAGEN <<<
+const SUPABASE_URL = 'https://vtdcvjpfqyebkekqfsvw.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_sKUrNKgQQmxJQSALbWWqrw_fHbQQBD5';
+const ADMIN_EMAIL = 'jonny@camino.ninja';
+
 const state = {
   map: null,
   markersLayer: null,
@@ -237,7 +245,9 @@ const state = {
   spots: [],
   selectedSpot: null,
   draftLatLng: null,
+  draftMarker: null,
   userPos: null,
+  userMarker: null,
   watchId: null,
   supabase: null,
   session: null,
@@ -250,16 +260,14 @@ const qa = sel => Array.from(document.querySelectorAll(sel));
 
 function bindEls(){
   [
-    'searchInput','foundFilter','nearbyOnly','searchMeta','searchResults','listCards','spotName','spotSolution','spotImageUrl','spotRiddle','spotNotes','spotLat','spotLng','spotFound',
-    'pickOnMapBtn','saveSpotBtn','newSpotBtn','deleteSpotBtn','loginEmail','loginPassword','statusPill','sbUrl','sbKey','pinColor','pinSize','lockByDistance','greetingBucket','spotBucket',
-    'modalTitle','modalMeta','modalPhoto','modalRiddle','modalNotes','answerInput','answerResult','greetingPhotoWrap','greetingUploadInput'
+    'searchInput','foundFilter','nearbyOnly','searchMeta','searchResults','spotName','spotSolution','spotImageUrl','spotRiddle','spotNotes','spotLat','spotLng','spotFound',
+    'pickOnMapBtn','saveSpotBtn','newSpotBtn','deleteSpotBtn','loginEmail','loginPassword','statusPill','pinColor','pinSize','lockByDistance','greetingBucket','spotBucket',
+    'modalTitle','modalMeta','modalPhoto','modalRiddle','modalNotes','answerInput','answerResult','greetingPhotoWrap','greetingUploadInput','openEditorFromSettingsBtn','adminHint'
   ].forEach(id => els[id] = document.getElementById(id));
 }
 
 function loadSettings(){
   const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  els.sbUrl.value = s.sbUrl || '';
-  els.sbKey.value = s.sbKey || '';
   els.pinColor.value = s.pinColor || '#ff5a36';
   els.pinSize.value = s.pinSize || 18;
   els.lockByDistance.checked = !!s.lockByDistance;
@@ -270,8 +278,6 @@ function loadSettings(){
 
 function saveSettings(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    sbUrl: els.sbUrl.value.trim(),
-    sbKey: els.sbKey.value.trim(),
     pinColor: els.pinColor.value,
     pinSize: Number(els.pinSize.value),
     lockByDistance: els.lockByDistance.checked,
@@ -292,6 +298,13 @@ function setStatus(msg, ok=false){
   els.statusPill.className = ok ? 'ok' : 'warn';
 }
 
+function updateAdminUi(){
+  const admin = isAdmin();
+  q('#addSpotBtn').classList.toggle('admin-hidden', !admin);
+  q('#openEditorFromSettingsBtn')?.classList.toggle('hidden', !admin);
+  q('#adminHint')?.classList.toggle('hidden', !admin);
+}
+
 function initMap(){
   state.map = L.map('map', { zoomControl:true }).setView(DEFAULT_CENTER, DEFAULT_ZOOM);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -300,27 +313,57 @@ function initMap(){
   }).addTo(state.map);
   state.markersLayer = L.layerGroup().addTo(state.map);
   state.map.on('click', ev => {
-    if(!state.isPickingOnMap) return;
-    state.draftLatLng = ev.latlng;
-    els.spotLat.value = ev.latlng.lat.toFixed(6);
-    els.spotLng.value = ev.latlng.lng.toFixed(6);
-    state.isPickingOnMap = false;
-    document.body.classList.remove('add-pin-mode');
-    toast('Koordinate gesetzt. Der Pin wartet jetzt geschniegelt im Formular.');
-    openPanel('editor');
+    if(!state.isPickingOnMap || !isAdmin()) return;
+    setDraftMarker(ev.latlng, true);
   });
 }
 
-function makeIcon(name='Pin'){
-  const size = Number(els.pinSize.value || 18);
-  const color = els.pinColor.value || '#ff5a36';
+function makeDraftIcon(){
   return L.divIcon({
-    className:'spot-icon-host',
-    html:`<div class="spot-wrap"><div class="spot-label">${escapeHtml(name)}</div><div class="spot-dot" style="width:${size}px;height:${size}px;background:${color}"></div></div>`,
-    iconSize:[Math.max(90,size+10), size+30],
-    iconAnchor:[Math.max(18,size/2), size+24],
-    popupAnchor:[0, -(size+16)]
+    className:'draft-pin-icon',
+    html:'<div class="draft-pin-wrap"><div class="draft-pin-body"></div><div class="draft-pin-tail"></div></div>',
+    iconSize:[30,42],
+    iconAnchor:[15,40]
   });
+}
+
+function setDraftMarker(latlng, keepPicking=true){
+  state.draftLatLng = latlng;
+  els.spotLat.value = Number(latlng.lat).toFixed(6);
+  els.spotLng.value = Number(latlng.lng).toFixed(6);
+  if(!state.draftMarker){
+    state.draftMarker = L.marker(latlng, { draggable:true, icon: makeDraftIcon(), zIndexOffset:1000 }).addTo(state.map);
+    state.draftMarker.on('drag', e => {
+      const p = e.target.getLatLng();
+      state.draftLatLng = p;
+      els.spotLat.value = Number(p.lat).toFixed(6);
+      els.spotLng.value = Number(p.lng).toFixed(6);
+    });
+    state.draftMarker.on('dragend', e => {
+      const p = e.target.getLatLng();
+      state.draftLatLng = p;
+      els.spotLat.value = Number(p.lat).toFixed(6);
+      els.spotLng.value = Number(p.lng).toFixed(6);
+    });
+  }else{
+    state.draftMarker.setLatLng(latlng);
+  }
+  state.isPickingOnMap = keepPicking;
+  q('#addSpotBtn').classList.toggle('pending', keepPicking);
+}
+
+function clearDraftMarker(){
+  if(state.draftMarker){
+    state.map.removeLayer(state.draftMarker);
+    state.draftMarker = null;
+  }
+  state.draftLatLng = null;
+  state.isPickingOnMap = false;
+  q('#addSpotBtn').classList.remove('pending');
+}
+
+function isAdmin(){
+  return !!(state.session?.user?.email && state.session.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
 }
 
 function distanceMeters(lat1,lng1,lat2,lng2){
@@ -347,19 +390,34 @@ function renderSpots(){
   applyStyleSettings();
   state.markersLayer.clearLayers();
   const filtered = filteredSpots();
+  const size = Number(els.pinSize.value || 18);
+  const color = els.pinColor.value || '#ff5a36';
   filtered.forEach(spot => {
-    const marker = L.marker([spot.lat, spot.lng], { icon: makeIcon(spot.name) }).addTo(state.markersLayer);
+    const marker = L.circleMarker([spot.lat, spot.lng], {
+      radius: Math.max(6, size / 2),
+      color: '#ffffff',
+      weight: 2,
+      fillColor: color,
+      fillOpacity: 1
+    }).addTo(state.markersLayer);
+    marker.bindTooltip(escapeHtml(spot.name || 'Pin'), {
+      permanent: true,
+      direction: 'top',
+      offset: [0, -(Math.max(6, size / 2) + 6)],
+      className: 'spot-tooltip'
+    });
     const dist = state.userPos ? Math.round(distanceMeters(state.userPos.lat, state.userPos.lng, spot.lat, spot.lng)) + ' m entfernt' : 'ohne Standort';
     marker.bindPopup(`
       <div class="popup">
         <div class="thumb">${spot.image_url ? `<img src="${escapeAttr(spot.image_url)}" alt="">` : ''}</div>
         <div><strong>${escapeHtml(spot.name || 'Pin')}</strong></div>
         <div class="muted">${spot.found ? 'Schon gefunden ✅' : 'Noch offen 🕵️'} · ${dist}</div>
-        <div class="actions"><button class="btn" onclick="window.__openSpot('${spot.id}')">Öffnen</button></div>
+        <div class="actions"><button class="btn" onclick="window.__openSpot('${spot.id}')">Öffnen</button>${isAdmin() ? `<button class="btn edit-btn" onclick="window.__editSpot('${spot.id}')">Bearbeiten</button>` : ''}</div>
       </div>`);
   });
   renderLists(filtered);
   els.searchMeta.textContent = `${filtered.length} von ${state.spots.length} Pins sichtbar.`;
+  updateAdminUi();
 }
 
 function filteredSpots(){
@@ -380,7 +438,7 @@ function filteredSpots(){
 function renderLists(spots){
   const html = spots.map(spot => cardHtml(spot)).join('') || '<div class="small-note">Noch nichts zu sehen – außer der großen Camino-Leinwand.</div>';
   els.searchResults.innerHTML = html;
-  els.listCards.innerHTML = html;
+
 }
 
 function cardHtml(spot){
@@ -392,7 +450,7 @@ function cardHtml(spot){
       <div class="muted">${spot.found ? 'Gefunden ✅' : 'Noch offen'}${dist}</div>
       <div class="actions">
         <button class="btn" onclick="window.__openSpot('${spot.id}')">Öffnen</button>
-        <button class="btn" onclick="window.__editSpot('${spot.id}')">Bearbeiten</button>
+        ${isAdmin() ? `<button class="btn edit-btn" onclick="window.__editSpot('${spot.id}')">Bearbeiten</button>` : ''}
         <button class="btn" onclick="window.__flyToSpot('${spot.id}')">Zur Karte</button>
       </div>
     </div>
@@ -412,14 +470,21 @@ function fillEditor(spot=null){
   els.spotLat.value = spot?.lat ?? '';
   els.spotLng.value = spot?.lng ?? '';
   els.spotFound.checked = !!spot?.found;
+  if(spot?.lat && spot?.lng){
+    setDraftMarker(L.latLng(spot.lat, spot.lng), false);
+  }else if(!spot){
+    clearDraftMarker();
+  }
 }
 
-async function connectSupabase(){
+async async function connectSupabase(){
   saveSettings();
-  const { sbUrl, sbKey } = currentSettings();
-  if(!sbUrl || !sbKey){ setStatus('Supabase-Daten fehlen', false); return false; }
+  if(!SUPABASE_URL || SUPABASE_URL.includes('DEINE-PROJEKT-URL') || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('DEIN-ANON-KEY')){
+    setStatus('Supabase-Daten fehlen', false);
+    return false;
+  }
   try{
-    state.supabase = window.supabase.createClient(sbUrl, sbKey);
+    state.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const { data, error } = await state.supabase.auth.getSession();
     if(error) throw error;
     state.session = data.session;
@@ -452,6 +517,7 @@ async function loadSpots(){
 }
 
 async function saveSpot(){
+  if(!isAdmin()) return toast('Pin-Editor nur für den Admin-Account.');
   if(!state.supabase){ const ok = await connectSupabase(); if(!ok) return; }
   const payload = {
     name: els.spotName.value.trim(),
@@ -477,16 +543,19 @@ async function saveSpot(){
     return;
   }
   fillEditor(null);
+  clearDraftMarker();
   await loadSpots();
   openPanel('search');
 }
 
 async function deleteSpot(){
+  if(!isAdmin()) return toast('Löschen nur für den Admin-Account.');
   if(!state.selectedSpot?.id) return toast('Kein Spot ausgewählt.');
   if(!confirm(`"${state.selectedSpot.name}" wirklich löschen?`)) return;
   const { error } = await state.supabase.from('camino_spots').delete().eq('id', state.selectedSpot.id);
   if(error) return toast('Löschen fehlgeschlagen: ' + error.message);
   fillEditor(null);
+  clearDraftMarker();
   await loadSpots();
   openPanel('search');
 }
@@ -527,23 +596,31 @@ function openSpot(id){
 function closeModal(){ q('#modal').classList.remove('open'); }
 
 function openPanel(name){
+  if(name === 'editor' && !isAdmin()) return toast('Pin-Editor nur für jonny@camino.ninja.');
   qa('.panel').forEach(p => p.classList.toggle('open', p.dataset.panel === name));
   qa('[data-panel-btn]').forEach(b => b.classList.toggle('active', b.dataset.panelBtn === name));
 }
 function closePanels(){ qa('.panel').forEach(p => p.classList.remove('open')); qa('[data-panel-btn]').forEach(b => b.classList.remove('active')); }
 
-function setView(view){
-  document.body.dataset.view = view;
-  qa('[data-switch]').forEach(b => b.classList.toggle('active', b.dataset.switch === view));
-}
 
 function startLocationWatch(){
   if(!navigator.geolocation) return toast('Standort ist hier leider nicht am Start.');
+  const btn = q('#locateBtn');
+  btn.classList.add('active');
   if(state.watchId) navigator.geolocation.clearWatch(state.watchId);
   state.watchId = navigator.geolocation.watchPosition(pos => {
     state.userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    if(!state.userMarker){
+      state.userMarker = L.circleMarker([state.userPos.lat, state.userPos.lng], { radius:8, color:'#fff', weight:2, fillColor:'#2563eb', fillOpacity:1 }).addTo(state.map);
+    }else{
+      state.userMarker.setLatLng([state.userPos.lat, state.userPos.lng]);
+    }
+    btn.classList.add('active');
     renderSpots();
-  }, err => toast('Standortfehler: ' + err.message), { enableHighAccuracy:true, maximumAge:5000, timeout:12000 });
+  }, err => {
+    btn.classList.remove('active');
+    toast('Standortfehler: ' + err.message);
+  }, { enableHighAccuracy:true, maximumAge:5000, timeout:12000 });
 }
 
 async function login(){
@@ -556,13 +633,16 @@ async function login(){
   const { data } = await state.supabase.auth.getSession();
   state.session = data.session;
   setStatus(`Eingeloggt: ${state.session.user.email}`, true);
+  updateAdminUi();
 }
 
 async function logout(){
   if(!state.supabase) return;
   await state.supabase.auth.signOut();
   state.session = null;
+  clearDraftMarker();
   setStatus('Nicht eingeloggt', false);
+  updateAdminUi();
 }
 
 function checkAnswer(){
@@ -612,18 +692,29 @@ function downloadBackup(){
 }
 
 function wire(){
-  qa('[data-switch]').forEach(b => b.addEventListener('click', () => setView(b.dataset.switch)));
   qa('[data-panel-btn]').forEach(b => b.addEventListener('click', () => openPanel(b.dataset.panelBtn)));
   qa('[data-panel-close]').forEach(b => b.addEventListener('click', closePanels));
   q('#closeModalBtn').addEventListener('click', closeModal);
   q('#locateBtn').addEventListener('click', startLocationWatch);
-  q('#addSpotBtn').addEventListener('click', () => { fillEditor(null); openPanel('editor'); state.isPickingOnMap=true; toast('Einmal auf die Karte tippen, dann landen Lat/Lng direkt im Formular.'); });
-  q('#pickOnMapBtn').addEventListener('click', () => { state.isPickingOnMap=true; closePanels(); toast('Jetzt auf die Karte tippen. Der Camino wartet.'); });
+  q('#addSpotBtn').addEventListener('click', () => {
+    if(!isAdmin()) return toast('Neue Pins nur für jonny@camino.ninja.');
+    fillEditor(null);
+    const center = state.map.getCenter();
+    setDraftMarker(center, true);
+    openPanel('editor');
+  });
+  q('#pickOnMapBtn').addEventListener('click', () => {
+    if(!isAdmin()) return toast('Nur der Admin darf neue Pin-Positionen setzen.');
+    state.isPickingOnMap = true;
+    q('#addSpotBtn').classList.add('pending');
+    closePanels();
+  });
   q('#saveSpotBtn').addEventListener('click', saveSpot);
   q('#newSpotBtn').addEventListener('click', () => fillEditor(null));
   q('#deleteSpotBtn').addEventListener('click', deleteSpot);
   q('#connectBtn').addEventListener('click', connectSupabase);
-  q('#saveSettingsBtn').addEventListener('click', () => { saveSettings(); applyStyleSettings(); renderSpots(); toast('Settings lokal gespeichert.'); });
+  q('#saveSettingsBtn').addEventListener('click', () => { saveSettings(); applyStyleSettings(); renderSpots(); toast('Optik lokal gespeichert.'); });
+  q('#openEditorFromSettingsBtn')?.addEventListener('click', () => openPanel('editor'));
   q('#reloadBtn').addEventListener('click', loadSpots);
   q('#downloadBackupBtn').addEventListener('click', downloadBackup);
   q('#pinColor').addEventListener('input', () => { applyStyleSettings(); renderSpots(); });
@@ -640,8 +731,13 @@ function wire(){
 }
 
 window.__openSpot = openSpot;
-window.__editSpot = id => { const spot = state.spots.find(s => String(s.id) === String(id)); fillEditor(spot || null); openPanel('editor'); };
-window.__flyToSpot = id => { const spot = state.spots.find(s => String(s.id) === String(id)); if(!spot) return; setView('map'); state.map.flyTo([spot.lat, spot.lng], 15, { duration:.8 }); };
+window.__editSpot = id => {
+  if(!isAdmin()) return toast('Pin-Editor nur für jonny@camino.ninja.');
+  const spot = state.spots.find(s => String(s.id) === String(id));
+  fillEditor(spot || null);
+  openPanel('editor');
+};
+window.__flyToSpot = id => { const spot = state.spots.find(s => String(s.id) === String(id)); if(!spot) return; state.map.flyTo([spot.lat, spot.lng], 15, { duration:.8 }); };
 
 (async function init(){
   bindEls();
@@ -649,6 +745,7 @@ window.__flyToSpot = id => { const spot = state.spots.find(s => String(s.id) ===
   initMap();
   wire();
   await connectSupabase();
+  updateAdminUi();
   await loadSpots();
 })();
 </script>
