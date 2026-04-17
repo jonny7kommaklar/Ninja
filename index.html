@@ -20,19 +20,21 @@
   --warn:#dc2626;
   --pin:#ff5a36;
   --pin-size:18;
+  --menu-rgb:255,255,255;
+  --menu-alpha:.76;
   --shadow:0 14px 44px rgba(15,23,42,.18);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0;font-family:Inter,Arial,sans-serif;overflow:hidden;color:var(--text);background:#dbeafe}
 #map{position:fixed;inset:0;z-index:1}
-.glass{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:var(--bg);border:1px solid var(--line);box-shadow:var(--shadow)}
+.glass{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(var(--menu-rgb),var(--menu-alpha));border:1px solid var(--line);box-shadow:var(--shadow)}
 .topbar{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:40;display:flex;justify-content:center;pointer-events:none}
 .brandbar{pointer-events:auto;display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px;border-radius:18px;min-height:50px;max-width:min(100%,360px)}
-.brandbar .logo-dot{width:11px;height:11px;border-radius:999px;background:linear-gradient(135deg,var(--teal),var(--blus));box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+.brandbar .logo-dot{width:11px;height:11px;border-radius:999px;background:linear-gradient(135deg,var(--teal),var(--blue));box-shadow:0 0 0 4px rgba(37,99,235,.12)}
 .brandbar .title{font-size:15px;font-weight:900;letter-spacing:.02em}
 .brandbar .sub{font-size:10px;color:var(--muted);margin-top:1px}
 .dock{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);z-index:40;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;border-radius:18px}
-.dock button{border:0;background:rgba(255,255,255,.78);padding:9px 6px;border-radius:14px;font-size:11px;font-weight:800;color:#334155;display:grid;gap:2px;place-items:center;min-height:54px}
+.dock button{border:0;background:rgba(var(--menu-rgb),calc(var(--menu-alpha) + .02));padding:9px 6px;border-radius:14px;font-size:11px;font-weight:800;color:#334155;display:grid;gap:2px;place-items:center;min-height:54px}
 .dock button.active{background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff}
 .dock button.admin-only{display:none}
 .dock .icon{font-size:17px;line-height:1}
@@ -77,7 +79,7 @@ label{display:block;font-size:12px;color:#334155}
 .draft-pin-wrap{position:relative;width:30px;height:42px}
 .draft-pin-body{position:absolute;left:50%;top:0;transform:translateX(-50%);width:26px;height:26px;border-radius:999px;background:linear-gradient(135deg,var(--teal),var(--blue));border:3px solid #fff;box-shadow:0 10px 22px rgba(15,23,42,.28)}
 .draft-pin-tail{position:absolute;left:50%;top:18px;transform:translateX(-50%) rotate(45deg);width:16px;height:16px;background:linear-gradient(135deg,var(--teal),var(--blue));border-radius:0 0 4px 0;border-right:3px solid #fff;border-bottom:3px solid #fff}
-.locate-btn,.fab{position:fixed;right:12px;z-index:42;width:52px;height:52px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.88);color:var(--text);font-size:22px;box-shadow:0 10px 26px rgba(15,23,42,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease}
+.locate-btn,.fab{position:fixed;right:12px;z-index:42;width:52px;height:52px;border:1px solid var(--line);border-radius:16px;background:rgba(var(--menu-rgb),calc(var(--menu-alpha) + .12));color:var(--text);font-size:22px;box-shadow:0 10px 26px rgba(15,23,42,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease}
 .locate-btn{bottom:calc(env(safe-area-inset-bottom,0px) + 148px)}
 .fab{bottom:calc(env(safe-area-inset-bottom,0px) + 208px);font-size:28px;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff}
 .locate-btn:hover,.fab:hover{transform:translateY(-1px)}
@@ -102,7 +104,7 @@ label{display:block;font-size:12px;color:#334155}
 </head>
 <body>
 <div id="map"></div>
-<div class="topbar"><div class="glass brandbar"><div class="logo-dot"></div><div><div class="title">VANESSA ON TOUR</div><div class="sub">Für Spiel und Spaß beim Laufen :D</div></div></div></div>
+<div class="topbar"><div class="glass brandbar"><div class="logo-dot"></div><div><div class="title">Vanessa on Tour</div><div class="sub">Camino pins, Rätsel & kleine Wegmagie</div></div></div></div>
 <button class="fab" id="addSpotBtn" title="Neuen Pin setzen">＋</button>
 <button class="locate-btn" id="locateBtn" title="Mein Standort">📍</button>
 <div class="glass dock">
@@ -112,14 +114,18 @@ label{display:block;font-size:12px;color:#334155}
 </div>
 
 <section class="glass panel" id="panel-search" data-panel="search">
-  <div class="panel-head"><div><div class="panel-title">Suche & Überblick</div><div class="panel-sub">Filter, Treffer, Lagecheck</div></div><button class="panel-close" data-panel-close>✕</button></div>
+  <div class="panel-head"><div><div class="panel-title">Suche & Überblick</div><div class="panel-sub">Filter, Treffer und kleiner Lagecheck.</div></div><button class="panel-close" data-panel-close>✕</button></div>
   <div class="panel-body">
     <div class="section stack">
       <input id="searchInput" placeholder="Pinname suchen, z. B. Versteck 3">
       <div class="row2">
-        <select id="foundFilter"><option value="all">Alle</option><option value="open">Nur offen</option><option value="found">Nur gefunden</option></select>
+        <select id="sortBy">
+          <option value="lat_asc">Sortierung: Lat aufsteigend</option>
+          <option value="distance">Sortierung: Entfernung</option>
+        </select>
         <label class="checkbox" style="padding-top:10px"><input type="checkbox" id="nearbyOnly"> nur in meiner Nähe</label>
       </div>
+      <label class="checkbox"><input type="checkbox" id="openOnly"> nur noch offene</label>
       <div class="small-note" id="searchMeta">0 Pins geladen.</div>
     </div>
     <div class="section">
@@ -143,6 +149,12 @@ label{display:block;font-size:12px;color:#334155}
       </div>
       <div>
         <label>Spotbild URL</label><input id="spotImageUrl" placeholder="https://.../bild.jpg">
+      </div>
+      <div class="stack">
+        <div class="small-note">Titelbild direkt hochladen (Admin) in den Bucket <b>spot-images</b>.</div>
+        <div id="editorImagePreview" class="modal-photo" style="height:min(20vh,150px)"></div>
+        <input id="spotImageUploadInput" type="file" accept="image/*">
+        <button class="btn" id="uploadSpotImageBtn">Titelbild hochladen</button>
       </div>
       <div>
         <label>Rätsel</label><textarea id="spotRiddle" placeholder="Hier kommt dein Rätsel / Hinweistext rein."></textarea>
@@ -170,14 +182,14 @@ label{display:block;font-size:12px;color:#334155}
 </section>
 
 <section class="glass panel" id="panel-account" data-panel="account">
-  <div class="panel-head"><div><div class="panel-title">Login</div><div class="panel-sub">Logindaten beim Admin persönlich abzuholen</div></div><button class="panel-close" data-panel-close>✕</button></div>
+  <div class="panel-head"><div><div class="panel-title">Login</div><div class="panel-sub">Optional für spätere RLS-Spielchen oder Admin-Nervenfrieden.</div></div><button class="panel-close" data-panel-close>✕</button></div>
   <div class="panel-body">
     <div class="section stack">
       <div id="statusPill" class="warn">Nicht eingeloggt</div>
       <div><label>E-Mail</label><input id="loginEmail" type="email" placeholder="dein@email.de"></div>
       <div><label>Passwort</label><input id="loginPassword" type="password" placeholder="••••••••"></div>
       <div class="row2"><button class="btn" id="loginBtn">Einloggen</button><button class="btn" id="logoutBtn">Logout</button></div>
-      <div class="small-note">Viel Spaß und komm gut an!</div>
+      <div class="small-note">Für die frische SQL unten ist RLS erstmal aus. Login bleibt trotzdem drin, falls du später wieder schärfer absichern willst.</div>
     </div>
   </div>
 </section>
@@ -186,8 +198,9 @@ label{display:block;font-size:12px;color:#334155}
   <div class="panel-head"><div><div class="panel-title">Setup & Einstellungen</div><div class="panel-sub">Supabase, Pinoptik, Backup und 200m-Regel.</div></div><button class="panel-close" data-panel-close>✕</button></div>
   <div class="panel-body">
     <div class="section stack">
-      <div class="row2"><button class="btn" id="connectBtn">Neu verbinden</button><button class="btn" id="saveSettingsBtn">Style speichern</button></div>
-      <div class="small-note hidden" id="adminHint">Admin erkannt</div>
+      <div class="small-note">Supabase URL und Key sind jetzt fest im HTML hinterlegt. Direkt oben im Script bei <b>SUPABASE_URL</b> und <b>SUPABASE_ANON_KEY</b> eintragen – dann läuft der Hobel.</div>
+      <div class="row2"><button class="btn" id="connectBtn">Neu verbinden</button><button class="btn" id="saveSettingsBtn">Optik speichern</button></div>
+      <div class="small-note hidden" id="adminHint">Admin erkannt. Hier darfst du jetzt auch den Pin-Editor öffnen und neue Pins setzen.</div>
       <button class="btn hidden" id="openEditorFromSettingsBtn">Pin-Editor öffnen</button>
     </div>
     <div class="section stack">
@@ -195,9 +208,11 @@ label{display:block;font-size:12px;color:#334155}
         <div><label>Pinfarbe</label><input id="pinColor" type="color" value="#ff5a36"></div>
         <div><label>Pingröße</label><input id="pinSize" type="range" min="12" max="34" step="1" value="18"></div>
       </div>
-      <label class="checkbox"><input id="lockByDistance" type="checkbox"> Pins erst unter 200m öffnen</label>
-      <div><label>Grussfoto-Bucket</label><input id="greetingBucket" value="greeting-photos"></div>
-      <div><label>Spotbild-Bucket (optional)</label><input id="spotBucket" value="spot-images"></div>
+      <div class="row2">
+        <div><label>Menüfarbe</label><input id="menuColor" type="color" value="#ffffff"></div>
+        <div><label>Menü-Transparenz</label><input id="menuOpacity" type="range" min="0.2" max="1" step="0.02" value="0.76"></div>
+      </div>
+      <label class="checkbox"><input id="lockByDistance" type="checkbox"> Pins erst unter 200m öffnen (Standort nötig)</label>
       <div class="row2"><button class="btn" id="downloadBackupBtn">Backup JSON</button><button class="btn" id="reloadBtn">Pins neu laden</button></div>
     </div>
   </div>
@@ -216,12 +231,12 @@ label{display:block;font-size:12px;color:#334155}
     </div>
     <div class="section stack">
       <div><label>Deine Lösung</label><input id="answerInput" placeholder="Antwort eintippen"></div>
-      <div class="row2"><button class="btn" id="checkAnswerBtn">Antwort prüfen</button><button class="btn" id="toggleFoundBtn">als gefunden markieren</button></div>
+      <div class="row2"><button class="btn" id="checkAnswerBtn">Antwort prüfen</button><button class="btn" id="toggleFoundBtn">Gefunden umschalten</button></div>
       <div id="answerResult" class="answer-result"></div>
     </div>
     <div class="section stack">
-      <strong>Foto-Upload</strong>
-      <div class="small-note">Lad hier einen Gruß, eine Antwort, einen Beweis oder Sonstiges hoch :D</div>
+      <strong>Grussfoto</strong>
+      <div class="small-note">Unten wird erst brav „mach mal ein Foto“ gespielt, danach landet das Bild hier drin.</div>
       <div id="greetingPhotoWrap" class="modal-photo hidden" style="height:min(22vh,160px)"></div>
       <input id="greetingUploadInput" type="file" accept="image/*">
       <button class="btn primary" id="uploadGreetingBtn">Grussfoto hochladen</button>
@@ -234,9 +249,13 @@ const STORAGE_KEY = 'vanessa_on_tour_settings_v2';
 const DEFAULT_CENTER = [41.35, -8.55];
 const DEFAULT_ZOOM = 8;
 
+// >>> HIER EURE SUPABASE DATEN FEST EINTRAGEN <<<
 const SUPABASE_URL = 'https://vtdcvjpfqyebkekqfsvw.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_sKUrNKgQQmxJQSALbWWqrw_fHbQQBD5';
 const ADMIN_EMAIL = 'jonny@camino.ninja';
+const GREETING_BUCKET = 'greeting-photos';
+const SPOT_BUCKET = 'spot-images';
+
 const state = {
   map: null,
   markersLayer: null,
@@ -259,19 +278,30 @@ const qa = sel => Array.from(document.querySelectorAll(sel));
 
 function bindEls(){
   [
-    'searchInput','foundFilter','nearbyOnly','searchMeta','searchResults','spotName','spotSolution','spotImageUrl','spotRiddle','spotNotes','spotLat','spotLng','spotFound',
-    'pickOnMapBtn','saveSpotBtn','newSpotBtn','deleteSpotBtn','loginEmail','loginPassword','statusPill','pinColor','pinSize','lockByDistance','greetingBucket','spotBucket',
-    'modalTitle','modalMeta','modalPhoto','modalRiddle','modalNotes','answerInput','answerResult','greetingPhotoWrap','greetingUploadInput','openEditorFromSettingsBtn','adminHint','cancelDraftBtn'
+    'searchInput','sortBy','openOnly','nearbyOnly','searchMeta','searchResults','spotName','spotSolution','spotImageUrl','spotRiddle','spotNotes','spotLat','spotLng','spotFound',
+    'pickOnMapBtn','saveSpotBtn','newSpotBtn','deleteSpotBtn','loginEmail','loginPassword','statusPill','pinColor','pinSize','menuColor','menuOpacity','lockByDistance',
+    'modalTitle','modalMeta','modalPhoto','modalRiddle','modalNotes','answerInput','answerResult','greetingPhotoWrap','greetingUploadInput','openEditorFromSettingsBtn','adminHint','cancelDraftBtn',
+    'editorImagePreview','spotImageUploadInput','uploadSpotImageBtn'
   ].forEach(id => els[id] = document.getElementById(id));
+}
+
+function hexToRgbString(hex){
+  const clean = String(hex || '#ffffff').replace('#','');
+  const safe = clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean;
+  const num = parseInt(safe, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  return `${r},${g},${b}`;
 }
 
 function loadSettings(){
   const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
   els.pinColor.value = s.pinColor || '#ff5a36';
   els.pinSize.value = s.pinSize || 18;
+  els.menuColor.value = s.menuColor || '#ffffff';
+  els.menuOpacity.value = s.menuOpacity || 0.76;
   els.lockByDistance.checked = !!s.lockByDistance;
-  els.greetingBucket.value = s.greetingBucket || 'greeting-photos';
-  els.spotBucket.value = s.spotBucket || 'spot-images';
   applyStyleSettings();
 }
 
@@ -279,15 +309,17 @@ function saveSettings(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
     pinColor: els.pinColor.value,
     pinSize: Number(els.pinSize.value),
+    menuColor: els.menuColor.value,
+    menuOpacity: Number(els.menuOpacity.value),
     lockByDistance: els.lockByDistance.checked,
-    greetingBucket: els.greetingBucket.value.trim(),
-    spotBucket: els.spotBucket.value.trim(),
   }));
 }
 
 function applyStyleSettings(){
   document.documentElement.style.setProperty('--pin', els.pinColor.value || '#ff5a36');
   document.documentElement.style.setProperty('--pin-size', Number(els.pinSize.value || 18));
+  document.documentElement.style.setProperty('--menu-rgb', hexToRgbString(els.menuColor.value || '#ffffff'));
+  document.documentElement.style.setProperty('--menu-alpha', Number(els.menuOpacity.value || 0.76));
 }
 
 function toast(msg){ alert(msg); }
@@ -427,17 +459,24 @@ function renderSpots(){
 
 function filteredSpots(){
   const term = (els.searchInput.value || '').trim().toLowerCase();
-  const foundFilter = els.foundFilter.value;
-  return state.spots.filter(spot => {
+  const sortBy = els.sortBy.value || 'lat_asc';
+  const list = state.spots.filter(spot => {
     if(term && !(spot.name || '').toLowerCase().includes(term) && !(spot.riddle || '').toLowerCase().includes(term)) return false;
-    if(foundFilter === 'open' && spot.found) return false;
-    if(foundFilter === 'found' && !spot.found) return false;
+    if(els.openOnly.checked && spot.found) return false;
     if(els.nearbyOnly.checked){
       if(!state.userPos) return false;
       if(distanceMeters(state.userPos.lat, state.userPos.lng, spot.lat, spot.lng) > 2000) return false;
     }
     return true;
   });
+  list.sort((a,b) => {
+    if(sortBy === 'distance'){
+      if(!state.userPos) return (a.lat ?? 0) - (b.lat ?? 0);
+      return distanceMeters(state.userPos.lat, state.userPos.lng, a.lat, a.lng) - distanceMeters(state.userPos.lat, state.userPos.lng, b.lat, b.lng);
+    }
+    return (a.lat ?? 0) - (b.lat ?? 0);
+  });
+  return list;
 }
 
 function renderLists(spots){
@@ -475,6 +514,8 @@ function fillEditor(spot=null){
   els.spotLat.value = spot?.lat ?? '';
   els.spotLng.value = spot?.lng ?? '';
   els.spotFound.checked = !!spot?.found;
+  els.spotImageUploadInput.value = '';
+  els.editorImagePreview.innerHTML = spot?.image_url ? `<img src="${escapeAttr(spot.image_url)}" alt="">` : '<div style="height:100%;display:grid;place-items:center;color:#64748b">Kein Titelbild</div>';
   if(spot?.lat && spot?.lng){
     setDraftMarker(L.latLng(spot.lat, spot.lng), false);
   }else if(!spot){
@@ -511,7 +552,7 @@ async function loadSpots(){
   const { data, error } = await state.supabase
     .from('camino_spots')
     .select('*')
-    .order('created_at', { ascending:true });
+    .order('lat', { ascending:true });
   if(error){
     console.error(error);
     toast('Laden fehlgeschlagen: ' + error.message);
@@ -602,6 +643,12 @@ function closeModal(){ q('#modal').classList.remove('open'); }
 
 function openPanel(name){
   if(name === 'editor' && !isAdmin()) return toast('Pin-Editor nur für jonny@camino.ninja.');
+  const target = q(`[data-panel="${name}"]`);
+  const willOpen = !target?.classList.contains('open');
+  if(!willOpen){
+    closePanels();
+    return;
+  }
   qa('.panel').forEach(p => p.classList.toggle('open', p.dataset.panel === name));
   qa('[data-panel-btn]').forEach(b => b.classList.toggle('active', b.dataset.panelBtn === name));
 }
@@ -611,12 +658,18 @@ function closePanels(){ qa('.panel').forEach(p => p.classList.remove('open')); q
 function startLocationWatch(){
   if(!navigator.geolocation) return toast('Standort ist hier leider nicht am Start.');
   const btn = q('#locateBtn');
+  if(state.userPos){
+    btn.classList.add('active');
+    state.map.flyTo([state.userPos.lat, state.userPos.lng], Math.max(state.map.getZoom(), 16), { duration:.8 });
+    return;
+  }
   btn.classList.add('active');
   if(state.watchId) navigator.geolocation.clearWatch(state.watchId);
   state.watchId = navigator.geolocation.watchPosition(pos => {
     state.userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
     if(!state.userMarker){
       state.userMarker = L.circleMarker([state.userPos.lat, state.userPos.lng], { radius:8, color:'#fff', weight:2, fillColor:'#2563eb', fillOpacity:1 }).addTo(state.map);
+      state.map.flyTo([state.userPos.lat, state.userPos.lng], 16, { duration:.8 });
     }else{
       state.userMarker.setLatLng([state.userPos.lat, state.userPos.lng]);
     }
@@ -661,10 +714,10 @@ function checkAnswer(){
     return;
   }
   if(given && given === want){
-    els.answerResult.textContent = 'Jawoll das Stimmt so!🍀';
+    els.answerResult.textContent = 'Treffer! Das war die richtige Lösung. 🍀';
     els.answerResult.className = 'answer-result ok';
   }else{
-    els.answerResult.textContent = 'Nope leider nicht, musst nochmal Nachdenken ;D';
+    els.answerResult.textContent = 'Nope – fast, daneben oder poetisch kreativ. Versuch’s nochmal.';
     els.answerResult.className = 'answer-result bad';
   }
 }
@@ -672,9 +725,9 @@ function checkAnswer(){
 async function uploadGreeting(){
   if(!state.selectedSpot?.id) return toast('Erst einen Pin öffnen.');
   const file = els.greetingUploadInput.files?.[0];
-  if(!file) return toast('erst ein Bild auswählen!');
+  if(!file) return toast('Bitte erst ein Bild auswählen.');
   if(!state.supabase){ const ok = await connectSupabase(); if(!ok) return; }
-  const bucket = els.greetingBucket.value.trim() || 'greeting-photos';
+  const bucket = GREETING_BUCKET;
   const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
   const path = `${state.selectedSpot.id}/${Date.now()}.${ext}`;
   const { error: upErr } = await state.supabase.storage.from(bucket).upload(path, file, { upsert:true });
@@ -685,6 +738,23 @@ async function uploadGreeting(){
   if(error) return toast('URL speichern fehlgeschlagen: ' + error.message);
   await loadSpots();
   openSpot(state.selectedSpot.id);
+}
+
+
+async function uploadSpotImage(){
+  if(!isAdmin()) return toast('Titelbild-Upload nur für den Admin.');
+  const file = els.spotImageUploadInput.files?.[0];
+  if(!file) return toast('Bitte erst ein Bild auswählen.');
+  if(!state.supabase){ const ok = await connectSupabase(); if(!ok) return; }
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const folder = state.selectedSpot?.id || `draft-${Date.now()}`;
+  const path = `${folder}/title-${Date.now()}.${ext}`;
+  const { error: upErr } = await state.supabase.storage.from(SPOT_BUCKET).upload(path, file, { upsert:true });
+  if(upErr) return toast('Titelbild-Upload fehlgeschlagen: ' + upErr.message);
+  const { data } = state.supabase.storage.from(SPOT_BUCKET).getPublicUrl(path);
+  els.spotImageUrl.value = data.publicUrl;
+  els.editorImagePreview.innerHTML = `<img src="${escapeAttr(data.publicUrl)}" alt="">`;
+  toast('Titelbild hochgeladen.');
 }
 
 function downloadBackup(){
@@ -702,7 +772,7 @@ function wire(){
   q('#closeModalBtn').addEventListener('click', closeModal);
   q('#locateBtn').addEventListener('click', startLocationWatch);
   q('#addSpotBtn').addEventListener('click', () => {
-    if(!isAdmin()) return toast('Neue Pins nur für Jonny :D');
+    if(!isAdmin()) return toast('Neue Pins nur für jonny@camino.ninja.');
     if(state.isPickingOnMap || state.draftMarker){
       cancelDraft();
       return;
@@ -713,7 +783,7 @@ function wire(){
     openPanel('editor');
   });
   q('#pickOnMapBtn').addEventListener('click', () => {
-    if(!isAdmin()) return toast('Nur Jonny darf neue Pins setzen.');
+    if(!isAdmin()) return toast('Nur der Admin darf neue Pin-Positionen setzen.');
     state.isPickingOnMap = true;
     q('#addSpotBtn').classList.add('pending');
     closePanels();
@@ -727,10 +797,14 @@ function wire(){
   q('#openEditorFromSettingsBtn')?.addEventListener('click', () => openPanel('editor'));
   q('#reloadBtn').addEventListener('click', loadSpots);
   q('#downloadBackupBtn').addEventListener('click', downloadBackup);
+  q('#uploadSpotImageBtn').addEventListener('click', uploadSpotImage);
   q('#pinColor').addEventListener('input', () => { applyStyleSettings(); renderSpots(); });
   q('#pinSize').addEventListener('input', () => { applyStyleSettings(); renderSpots(); });
+  q('#menuColor').addEventListener('input', applyStyleSettings);
+  q('#menuOpacity').addEventListener('input', applyStyleSettings);
   q('#searchInput').addEventListener('input', renderSpots);
-  q('#foundFilter').addEventListener('change', renderSpots);
+  q('#sortBy').addEventListener('change', renderSpots);
+  q('#openOnly').addEventListener('change', renderSpots);
   q('#nearbyOnly').addEventListener('change', renderSpots);
   q('#loginBtn').addEventListener('click', login);
   q('#logoutBtn').addEventListener('click', logout);
@@ -743,7 +817,7 @@ function wire(){
 
 window.__openSpot = openSpot;
 window.__editSpot = id => {
-  if(!isAdmin()) return toast('Pin-Editor nur für Jonny');
+  if(!isAdmin()) return toast('Pin-Editor nur für jonny@camino.ninja.');
   const spot = state.spots.find(s => String(s.id) === String(id));
   fillEditor(spot || null);
   openPanel('editor');
