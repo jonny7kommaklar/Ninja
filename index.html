@@ -318,7 +318,7 @@ function getSpotPopupHtml(spot){
   const info = openState.distance != null ? `${Math.round(openState.distance)} m entfernt` : (state.userLocation ? 'Distanz unbekannt' : 'Standort aus für Distanzcheck');
   return `
     <div class="map-popup">
-      <div class="map-popup-photo">${spot.spot_image_url ? `<img src="${escapeHtml(spot.spot_image_url)}" alt="${escapeHtml(spot.name)}">` : ''}</div>
+      <div class="map-popup-photo">${spot.image_url ? `<img src="${escapeHtml(spot.image_url)}" alt="${escapeHtml(spot.name)}">` : ''}</div>
       <div class="map-popup-name">${escapeHtml(spot.name)}</div>
       <div class="small-note">${openState.ok ? 'Bereit zum Öffnen.' : escapeHtml(openState.reason)} · ${escapeHtml(info)}</div>
       <div class="map-popup-actions">
@@ -356,7 +356,7 @@ function renderList(){
     const dist = gate.distance != null ? `${Math.round(gate.distance)} m` : '–';
     return `
       <div class="spot-card" onclick="openSpotById(${Number(spot.id)})">
-        <div class="spot-thumb">${spot.spot_image_url ? `<img src="${escapeHtml(spot.spot_image_url)}" alt="${escapeHtml(spot.name)}">` : ''}</div>
+        <div class="spot-thumb">${spot.image_url ? `<img src="${escapeHtml(spot.image_url)}" alt="${escapeHtml(spot.name)}">` : ''}</div>
         <div>
           <div class="spot-name">${escapeHtml(spot.name)}</div>
           <div class="spot-meta">${spot.found ? 'Schon gefunden ✅' : 'Noch offen'} · Distanz: ${escapeHtml(dist)}</div>
@@ -378,7 +378,7 @@ window.openSpotById = function(id){
   state.selectedSpot = spot;
   const gate = canOpenSpot(spot);
   const distanceText = gate.distance != null ? `${Math.round(gate.distance)} m entfernt` : 'Distanz erst mit Standort verfügbar';
-  const imageBlock = spot.spot_image_url ? `<div class="hero-image"><img src="${escapeHtml(spot.spot_image_url)}" alt="${escapeHtml(spot.name)}"></div>` : '<div class="hero-image"></div>';
+  const imageBlock = spot.image_url ? `<div class="hero-image"><img src="${escapeHtml(spot.image_url)}" alt="${escapeHtml(spot.name)}"></div>` : '<div class="hero-image"></div>';
   const gruss = spot.grussfoto_url ? `<div class="gruss-preview hero-image"><img src="${escapeHtml(spot.grussfoto_url)}" alt="Grussfoto"></div>` : '<div class="small-note">Noch kein Grussfoto hochgeladen.</div>';
   const lockedHtml = !gate.ok ? `<div class="answer-box"><div class="answer-result">🔒 ${escapeHtml(gate.reason || 'Noch gesperrt')}</div><div class="small-note">${escapeHtml(distanceText)}</div></div>` : '';
   const body = `
@@ -459,7 +459,7 @@ function fillAdminForm(spot){
   el('spotNameInput').value = spot?.name || '';
   el('spotLatInput').value = spot?.lat ?? '';
   el('spotLngInput').value = spot?.lng ?? '';
-  el('spotImageInput').value = spot?.spot_image_url || '';
+  el('spotImageInput').value = spot?.image_url || '';
   el('spotRiddleInput').value = spot?.riddle || '';
   el('spotNotesInput').value = spot?.notes || '';
   el('spotAnswerInput').value = spot?.solution || '';
@@ -471,7 +471,7 @@ function readAdminForm(){
     name: el('spotNameInput').value.trim(),
     lat: Number(el('spotLatInput').value),
     lng: Number(el('spotLngInput').value),
-    spot_image_url: el('spotImageInput').value.trim(),
+    image_url: el('spotImageInput').value.trim(),
     riddle: el('spotRiddleInput').value.trim(),
     notes: el('spotNotesInput').value.trim(),
     solution: el('spotAnswerInput').value.trim(),
@@ -616,7 +616,7 @@ function initUi(){
   el('newFromCenterBtn').addEventListener('click', ()=> {
     if(!state.user){ status('Zum Erstellen bitte einloggen.'); openPanel('settingsPanel'); return; }
     const c = state.map.getCenter();
-    fillAdminForm({ name:'Neues Versteck', lat:c.lat.toFixed(6), lng:c.lng.toFixed(6), spot_image_url:'', riddle:'', notes:'', solution:'', found:false });
+    fillAdminForm({ name:'Neues Versteck', lat:c.lat.toFixed(6), lng:c.lng.toFixed(6), image_url:'', riddle:'', notes:'', solution:'', found:false });
     openPanel('settingsPanel');
   });
   el('closeModalBtn').addEventListener('click', closeModal);
