@@ -387,7 +387,7 @@ window.openSpotById = function(id){
     ${lockedHtml}
     <div class="section stack">
       <div><b>Rätsel</b></div>
-      <div>${gate.ok ? escapeHtml(spot.riddle_text || 'Noch kein Rätsel eingetragen.') : 'Aktiviere Standort und komm näher ran – dann zeigt die Station alles.'}</div>
+      <div>${gate.ok ? escapeHtml(spot.riddle || 'Noch kein Rätsel eingetragen.') : 'Aktiviere Standort und komm näher ran – dann zeigt die Station alles.'}</div>
     </div>
     <div class="section stack">
       <div><b>Notizen</b></div>
@@ -460,7 +460,7 @@ function fillAdminForm(spot){
   el('spotLatInput').value = spot?.lat ?? '';
   el('spotLngInput').value = spot?.lng ?? '';
   el('spotImageInput').value = spot?.spot_image_url || '';
-  el('spotRiddleInput').value = spot?.riddle_text || '';
+  el('spotRiddleInput').value = spot?.riddle || '';
   el('spotNotesInput').value = spot?.notes || '';
   el('spotAnswerInput').value = spot?.solution_answer || '';
   el('spotFoundInput').value = String(!!spot?.found);
@@ -472,7 +472,7 @@ function readAdminForm(){
     lat: Number(el('spotLatInput').value),
     lng: Number(el('spotLngInput').value),
     spot_image_url: el('spotImageInput').value.trim(),
-    riddle_text: el('spotRiddleInput').value.trim(),
+    riddle: el('spotRiddleInput').value.trim(),
     notes: el('spotNotesInput').value.trim(),
     solution_answer: el('spotAnswerInput').value.trim(),
     found: el('spotFoundInput').value === 'true'
@@ -616,7 +616,7 @@ function initUi(){
   el('newFromCenterBtn').addEventListener('click', ()=> {
     if(!state.user){ status('Zum Erstellen bitte einloggen.'); openPanel('settingsPanel'); return; }
     const c = state.map.getCenter();
-    fillAdminForm({ name:'Neues Versteck', lat:c.lat.toFixed(6), lng:c.lng.toFixed(6), spot_image_url:'', riddle_text:'', notes:'', solution_answer:'', found:false });
+    fillAdminForm({ name:'Neues Versteck', lat:c.lat.toFixed(6), lng:c.lng.toFixed(6), spot_image_url:'', riddle:'', notes:'', solution_answer:'', found:false });
     openPanel('settingsPanel');
   });
   el('closeModalBtn').addEventListener('click', closeModal);
