@@ -661,10 +661,10 @@ function checkAnswer(){
     return;
   }
   if(given && given === want){
-    els.answerResult.textContent = 'Treffer! Das war die richtige Lösung. 🍀';
+    els.answerResult.textContent = 'Jawoll das Stimmt so!🍀';
     els.answerResult.className = 'answer-result ok';
   }else{
-    els.answerResult.textContent = 'Nope – fast, daneben oder poetisch kreativ. Versuch’s nochmal.';
+    els.answerResult.textContent = 'Nope leider nicht, musst nochmal Nachdenken ;D';
     els.answerResult.className = 'answer-result bad';
   }
 }
@@ -672,7 +672,7 @@ function checkAnswer(){
 async function uploadGreeting(){
   if(!state.selectedSpot?.id) return toast('Erst einen Pin öffnen.');
   const file = els.greetingUploadInput.files?.[0];
-  if(!file) return toast('Bitte erst ein Bild auswählen.');
+  if(!file) return toast('erst ein Bild auswählen!');
   if(!state.supabase){ const ok = await connectSupabase(); if(!ok) return; }
   const bucket = els.greetingBucket.value.trim() || 'greeting-photos';
   const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
@@ -702,7 +702,7 @@ function wire(){
   q('#closeModalBtn').addEventListener('click', closeModal);
   q('#locateBtn').addEventListener('click', startLocationWatch);
   q('#addSpotBtn').addEventListener('click', () => {
-    if(!isAdmin()) return toast('Neue Pins nur für jonny@camino.ninja.');
+    if(!isAdmin()) return toast('Neue Pins nur für Jonny :D');
     if(state.isPickingOnMap || state.draftMarker){
       cancelDraft();
       return;
@@ -713,7 +713,7 @@ function wire(){
     openPanel('editor');
   });
   q('#pickOnMapBtn').addEventListener('click', () => {
-    if(!isAdmin()) return toast('Nur der Admin darf neue Pin-Positionen setzen.');
+    if(!isAdmin()) return toast('Nur Jonny darf neue Pins setzen.');
     state.isPickingOnMap = true;
     q('#addSpotBtn').classList.add('pending');
     closePanels();
@@ -743,7 +743,7 @@ function wire(){
 
 window.__openSpot = openSpot;
 window.__editSpot = id => {
-  if(!isAdmin()) return toast('Pin-Editor nur für jonny@camino.ninja.');
+  if(!isAdmin()) return toast('Pin-Editor nur für Jonny');
   const spot = state.spots.find(s => String(s.id) === String(id));
   fillEditor(spot || null);
   openPanel('editor');
