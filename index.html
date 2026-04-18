@@ -417,7 +417,7 @@ function canOpenSpot(spot){
   if(!s.lockByDistance) return {ok:true};
   if(!state.userPos) return {ok:false, reason:'Standort aktivieren, dann geht das Rätsel-Türchen auf.'};
   const d = distanceMeters(state.userPos.lat, state.userPos.lng, spot.lat, spot.lng);
-  if(d > 200) return {ok:false, reason:`Noch ${Math.round(d)} m entfernt. Erst unter 200 m wird aufgesperrt.`};
+  if(d > 400) return {ok:false, reason:`Noch ${Math.round(d)} m entfernt. Erst unter 200 m wird aufgesperrt.`};
   return {ok:true};
 }
 
